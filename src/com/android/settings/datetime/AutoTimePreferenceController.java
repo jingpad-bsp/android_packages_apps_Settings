@@ -40,7 +40,14 @@ public class AutoTimePreferenceController extends AbstractPreferenceController
 
     @Override
     public boolean isAvailable() {
+
+        //mdm
+        if(com.jingos.mdm.MdmPolicyIntercept.UserTimeMgrPolicy_Intercept(mContext))
+        {
+            return false;
+        }
         return true;
+
     }
 
     @Override
@@ -48,6 +55,8 @@ public class AutoTimePreferenceController extends AbstractPreferenceController
         if (!(preference instanceof RestrictedSwitchPreference)) {
             return;
         }
+
+
         if (!((RestrictedSwitchPreference) preference).isDisabledByAdmin()) {
             ((RestrictedSwitchPreference) preference).setDisabledByAdmin(
                     getEnforcedAdminProperty());

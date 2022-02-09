@@ -30,11 +30,6 @@
             android:persistent="false"/>
 
     <com.android.settingslib.RestrictedPreference
-            android:key="unlock_set_pattern"
-            android:title="@string/unlock_set_unlock_pattern_title"
-            android:persistent="false"/>
-
-    <com.android.settingslib.RestrictedPreference
             android:key="unlock_set_pin"
             android:title="@string/unlock_set_unlock_pin_title"
             android:persistent="false"/>
@@ -43,6 +38,11 @@
             android:key="unlock_set_password"
             android:title="@string/unlock_set_unlock_password_title"
             android:persistent="false"/>
+
+    <com.android.settingslib.RestrictedPreference
+        android:key="unlock_set_pattern"
+        android:title="@string/unlock_set_unlock_pattern_title"
+        android:persistent="false"/>
 
     <com.android.settingslib.RestrictedPreference
             android:key="unlock_set_do_later"

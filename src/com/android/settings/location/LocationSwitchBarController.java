@@ -40,6 +40,14 @@ public class LocationSwitchBarController implements SwitchBar.OnSwitchChangeList
         if (lifecycle != null) {
             lifecycle.addObserver(this);
         }
+
+        //mdm
+        if(com.jingos.mdm.MdmPolicyIntercept.LocationSwitchBarController_Intercept(context))
+        {
+            mSwitchBar.setEnabled(false);
+        }
+
+
     }
 
     @Override
@@ -60,6 +68,14 @@ public class LocationSwitchBarController implements SwitchBar.OnSwitchChangeList
 
     @Override
     public void onLocationModeChanged(int mode, boolean restricted) {
+
+        //mdm
+        if(com.jingos.mdm.MdmPolicyIntercept.LocationSwitchBarController_Intercept(mSwitch.getContext()))
+        {
+            mSwitchBar.setEnabled(false);
+            return;
+        }
+
         // Restricted user can't change the location mode, so disable the master switch. But in some
         // corner cases, the location might still be enabled. In such case the master switch should
         // be disabled but checked.
@@ -94,6 +110,14 @@ public class LocationSwitchBarController implements SwitchBar.OnSwitchChangeList
      */
     @Override
     public void onSwitchChanged(Switch switchView, boolean isChecked) {
+
+        //mdm
+        if(com.jingos.mdm.MdmPolicyIntercept.LocationSwitchBarController_Intercept(mSwitch.getContext()))
+        {
+            mSwitchBar.setEnabled(false);
+            return;
+        }
+
         mLocationEnabler.setLocationEnabled(isChecked);
     }
 }

@@ -20,7 +20,7 @@
     xmlns:settings="http://schemas.android.com/apk/res-auto"
     android:key="apps_and_notification_screen"
     android:title="@string/app_and_notification_dashboard_title"
-    settings:initialExpandedChildrenCount="4">
+    settings:initialExpandedChildrenCount="7">
     <!-- the initial count should include the dynamic tiles -->
 
     <Preference
@@ -59,14 +59,44 @@
         <intent android:action="android.settings.MANAGE_DEFAULT_APPS_SETTINGS"/>
     </Preference>
 
+    <PreferenceCategory
+        android:key="screen_layout_mode"
+        android:title="@string/jingos_screen_layout"
+        android:order="12">
+
+        <SwitchPreference
+            android:key="0"
+            android:summary="@string/jingos_screen_layout_default_summary"
+            android:title="@string/jingos_screen_layout_default_title"
+            settings:controller="com.android.settings.applications.ScreenLayoutPreferenceController" />
+
+        <SwitchPreference
+            android:key="1"
+            android:summary="@string/jingos_screen_layout_landscape_stretch_summary"
+            android:title="@string/jingos_screen_layout_landscape_stretch_title"
+            settings:controller="com.android.settings.applications.ScreenLayoutPreferenceController" />
+
+<!--        <SwitchPreference-->
+<!--            android:key="2"-->
+<!--            android:summary="@string/jingos_screen_layout_landscape_summary"-->
+<!--            android:title="@string/jingos_screen_layout_landscape_title"-->
+<!--            settings:controller="com.android.settings.applications.ScreenLayoutPreferenceController" />-->
+
+    </PreferenceCategory>
+
     <Preference
         android:key="manage_perms"
         android:title="@string/app_permissions"
-        android:order="12"
+        android:order="13"
         settings:keywords="@string/keywords_app_permissions"
+        settings:allowDividerBelow="true"
+        settings:allowDividerAbove="true"
         settings:controller="com.android.settings.applications.AppPermissionsPreferenceController">
         <intent android:action="android.intent.action.MANAGE_PERMISSIONS"/>
     </Preference>
+
+
+
 
     <com.android.settingslib.RestrictedPreference
         android:key="app_and_notif_cell_broadcast_settings"

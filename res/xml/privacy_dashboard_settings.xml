@@ -64,11 +64,12 @@
         settings:controller="com.android.settings.security.ShowPasswordPreferenceController"/>
 
     <!-- On lock screen notifications -->
+    <!--
     <com.android.settings.RestrictedListPreference
         android:key="privacy_lock_screen_notifications"
         android:title="@string/lock_screen_notifications_title"
         android:summary="@string/summary_placeholder"
-        settings:searchable="false"/>
+        settings:searchable="false"/>-->
 
     <!-- Privacy Service -->
     <PreferenceCategory
@@ -80,6 +81,7 @@
 
     <!-- Work profile settings are at the bottom with high order value to avoid users thinking that
          any of the above settings (including dynamic) are specific to the work profile. -->
+    <!--     
     <PreferenceCategory
         android:key="privacy_work_profile_notifications_category"
         android:title="@string/profile_section_header"
@@ -92,7 +94,7 @@
             android:summary="@string/summary_placeholder"
             android:order="999"
             settings:searchable="false"/>
-    </PreferenceCategory>
+    </PreferenceCategory>-->
 
     <!-- Content Capture -->
 

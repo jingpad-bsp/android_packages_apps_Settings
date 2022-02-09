@@ -113,6 +113,8 @@ public class BrightnessLevelPreferenceController extends AbstractPreferenceContr
         mContentResolver.registerContentObserver(BRIGHTNESS_URI, false, mBrightnessObserver);
         mContentResolver.registerContentObserver(BRIGHTNESS_FOR_VR_URI, false, mBrightnessObserver);
         mContentResolver.registerContentObserver(BRIGHTNESS_ADJ_URI, false, mBrightnessObserver);
+        //Add for bug 1413846:The summary of brightness level preference not update.
+        updatedSummary(mPreference);
     }
 
     @Override
@@ -128,17 +130,23 @@ public class BrightnessLevelPreferenceController extends AbstractPreferenceContr
 
     private double getCurrentBrightness() {
         final int value;
+        double result;
         if (isInVrMode()) {
             value = convertLinearToGamma(System.getInt(mContentResolver,
                     System.SCREEN_BRIGHTNESS_FOR_VR, mMaxBrightness),
                     mMinVrBrightness, mMaxVrBrightness);
+            result = getPercentage(value, mMinVrBrightness, mMaxVrBrightness);
         } else {
-            value = convertLinearToGamma(Settings.System.getInt(mContentResolver,
+            int currentBrightness = Settings.System.getInt(mContentResolver,
+                    System.SCREEN_BRIGHTNESS, mMinBrightness);
+            result = getPercentage(currentBrightness, mMinBrightness, mMaxBrightness);
+            /*value = convertLinearToGamma(Settings.System.getInt(mContentResolver,
                     System.SCREEN_BRIGHTNESS, mMinBrightness),
-                    mMinBrightness, mMaxBrightness);
+                    mMinBrightness, mMaxBrightness);*/
+
 
         }
-        return getPercentage(value, 0, GAMMA_SPACE_MAX);
+        return result;
     }
 
     private double getPercentage(double value, int min, int max) {

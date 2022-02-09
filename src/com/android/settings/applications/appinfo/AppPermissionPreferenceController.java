@@ -21,6 +21,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.icu.text.ListFormatter;
+import android.os.SystemProperties;
 import android.util.Log;
 
 import androidx.annotation.VisibleForTesting;
@@ -81,6 +82,17 @@ public class AppPermissionPreferenceController extends AppInfoPreferenceControll
     public void updateState(Preference preference) {
         PermissionsSummaryHelper.getPermissionSummary(mContext, mPackageName, mPermissionCallback);
     }
+
+    /*UNISOC: Bug1426115, disable mPermissionsPreference for CTA feature @{ */
+    @Override
+    public int getAvailabilityStatus() {
+        if (SystemProperties.get("persist.support.securetest").equals("1")) {
+            return UNSUPPORTED_ON_DEVICE;
+        } else {
+            return AVAILABLE;
+        }
+    }
+    /* @} */
 
     @Override
     public boolean handlePreferenceTreeClick(Preference preference) {

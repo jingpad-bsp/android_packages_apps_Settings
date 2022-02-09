@@ -30,10 +30,16 @@ import com.android.settings.core.PreferenceControllerMixin;
 import com.android.settingslib.development.DeveloperOptionsPreferenceController;
 import com.android.settingslib.utils.ThreadUtils;
 
+import android.os.SystemProperties;
+import android.util.Log;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 public class MemoryUsagePreferenceController extends DeveloperOptionsPreferenceController implements
         PreferenceControllerMixin {
 
     private static final String MEMORY_USAGE_KEY = "memory";
+    private static final String TAG = "MemoryUsagePreferenceController";
 
     private ProcStatsData mProcStatsData;
 
@@ -67,7 +73,7 @@ public class MemoryUsagePreferenceController extends DeveloperOptionsPreferenceC
                     (long) memInfo.realTotalRam);
             ThreadUtils.postOnMainThread(
                     () -> mPreference.setSummary(mContext.getString(R.string.memory_summary,
-                            usedResult, totalResult)));
+                            usedResult, getRamSizeFromProperty())));
         });
     }
 
@@ -80,4 +86,38 @@ public class MemoryUsagePreferenceController extends DeveloperOptionsPreferenceC
     ProcStatsData getProcStatsData() {
         return new ProcStatsData(mContext, false);
     }
+
+    public String getRamSizeFromProperty() {
+        String size = SystemProperties.get(SPRD_RAM_SIZE, "unconfig");
+        if ("unconfig".equals(size)) {
+            Log.d(TAG, "can not get ram size from "+SPRD_RAM_SIZE);
+            return "8 GB";
+        } else {
+            Log.d(TAG, "property value is:" + size);
+            String regEx="[^0-9]";
+            Pattern p = Pattern.compile(regEx);
+            Matcher m = p.matcher(size);
+            size = m.replaceAll("").trim();
+            long ramSize = Long.parseLong(size);
+            return Formatter.formatShortFileSize(mContext, covertUnitsToSI(ramSize));
+        }
+    }
+
+    private static final String SPRD_RAM_SIZE = "ro.boot.ddrsize";
+    private static final int SI_UNITS = 1000;
+    private static final int IEC_UNITS = 1024;
+    
+    /**
+     * SI_UNITS = 1000bytes; IEC_UNITS = 1024bytes
+     * 512MB = 512 * 1000 * 1000
+     * 2048MB = 2048/1024 * 1000 * 1000 * 1000
+     * 2000MB = 2000 * 1000 * 1000
+     */
+    private long covertUnitsToSI(long size) {
+        if (size > SI_UNITS && size % IEC_UNITS == 0) {
+            return size / IEC_UNITS * SI_UNITS * SI_UNITS * SI_UNITS;
+        }
+        return size * SI_UNITS * SI_UNITS;
+    }
+
 }

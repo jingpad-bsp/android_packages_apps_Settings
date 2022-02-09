@@ -17,6 +17,7 @@ import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.icu.text.ListFormatter;
+import android.os.SystemProperties;
 import android.util.ArraySet;
 
 import androidx.annotation.VisibleForTesting;
@@ -64,7 +65,13 @@ public class AppPermissionsPreferenceController extends BasePreferenceController
 
     @Override
     public int getAvailabilityStatus() {
-        return AVAILABLE;
+        /*UNISOC: Bug1426115, disable mPermissionsPreference for CTA feature @{ */
+        if (SystemProperties.get("persist.support.securetest").equals("1")) {
+            return UNSUPPORTED_ON_DEVICE;
+        } else {
+            return AVAILABLE;
+        }
+        /* @} */
     }
 
     @Override

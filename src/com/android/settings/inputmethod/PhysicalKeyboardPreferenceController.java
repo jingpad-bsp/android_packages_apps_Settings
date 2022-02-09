@@ -105,7 +105,11 @@ public class PhysicalKeyboardPreferenceController extends AbstractPreferenceCont
         }
         final List<String> summaries = new ArrayList<>();
         for (HardKeyboardDeviceInfo info : keyboards) {
-            summaries.add(info.mDeviceName);
+            if("Sprd Keyboard".equals(info.mDeviceName)) {
+                summaries.add(mContext.getString(R.string.jingos_keyboard_name));
+            } else {
+                summaries.add(info.mDeviceName);
+            }
         }
         mPreference.setSummary(ListFormatter.getInstance().format(summaries));
     }

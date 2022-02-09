@@ -32,6 +32,7 @@ import androidx.fragment.app.FragmentManager;
 
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.settings.R;
+import com.android.settings.core.HideNonSystemOverlayMixin;
 
 /**
  * Dialog Activity to host Settings Slices.
@@ -57,18 +58,26 @@ public class SettingsPanelActivity extends FragmentActivity {
      * Key specifying the package name for which the
      */
     public static final String KEY_MEDIA_PACKAGE_NAME = "PANEL_MEDIA_PACKAGE_NAME";
-
+    private Intent mStartIntent=new Intent("com.xr.spaaction");
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         createOrUpdatePanel(true /* shouldForceCreation */);
+        getLifecycle().addObserver(new HideNonSystemOverlayMixin(this));
+
+    }
+    protected  void onResume(){
+        super.onResume();
+        mStartIntent.putExtra("started",true);
+        sendBroadcast(mStartIntent);
     }
 
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         setIntent(intent);
-        createOrUpdatePanel(false /* shouldForceCreation */);
+        //Bug 1163173: volume panel can not show up after continuously click
+        //createOrUpdatePanel(false /* shouldForceCreation */);
     }
 
     private void createOrUpdatePanel(boolean shouldForceCreation) {
@@ -106,5 +115,16 @@ public class SettingsPanelActivity extends FragmentActivity {
             panelFragment.setArguments(mBundle);
             fragmentManager.beginTransaction().add(R.id.main_content, panelFragment).commit();
         }
+    }
+    protected  void onPause(){
+        super.onPause();
+        mStartIntent.putExtra("started",false);
+        sendBroadcast(mStartIntent);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        finish();
     }
 }

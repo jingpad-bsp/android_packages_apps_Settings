@@ -382,6 +382,12 @@
         <item name="*android:errorColor">?android:attr/colorError</item>
     </style>
 
+    <style name="JingLockPatternStyle">
+        <item name="*android:regularColor">#6B6B8A</item>
+        <item name="*android:successColor">#3C4BE8</item>
+        <item name="*android:errorColor">#E95B4E</item>
+    </style>
+
     <style name="LockPatternStyle.Dark">
         <item name="*android:regularColor">@color/lock_pattern_view_regular_color_dark</item>
         <item name="*android:successColor">@color/lock_pattern_view_regular_color_dark</item>
@@ -656,4 +662,9 @@
     <style name="AccessibilityDialogButtonDeny"
            parent="@style/AccessibilityDialogButton"></style>
 
+    <!--jingos add-->
+    <style name="jingosComplexPassword">
+        <item name="android:colorControlNormal">#545458</item>
+        <item name="android:colorControlActivated">#545458</item>
+    </style>
 </resources>

@@ -127,6 +127,9 @@ public class WifiDppQrCodeGeneratorFragment extends WifiDppQrCodeBaseFragment {
 
         final String password = wifiNetworkConfig.getPreSharedKey();
         mPasswordView = view.findViewById(R.id.password);
+
+        mPasswordView.setVisibility(View.GONE);
+        
         if (TextUtils.isEmpty(password)) {
             mSummary.setText(getString(
                     R.string.wifi_dpp_scan_open_network_qr_code_with_another_device,

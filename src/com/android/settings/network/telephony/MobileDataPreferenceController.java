@@ -22,7 +22,9 @@ import android.os.Looper;
 import android.telephony.SubscriptionInfo;
 import android.telephony.SubscriptionManager;
 import android.telephony.TelephonyManager;
+import android.telephony.TelephonyManagerEx;
 import android.text.TextUtils;
+import android.util.Log;
 
 import androidx.annotation.VisibleForTesting;
 import androidx.fragment.app.FragmentManager;
@@ -31,11 +33,13 @@ import androidx.preference.PreferenceScreen;
 import androidx.preference.SwitchPreference;
 
 import com.android.settings.R;
+import com.android.settings.core.BasePreferenceController;
 import com.android.settings.network.MobileDataContentObserver;
 import com.android.settingslib.core.lifecycle.LifecycleObserver;
 import com.android.settingslib.core.lifecycle.events.OnStart;
 import com.android.settingslib.core.lifecycle.events.OnStop;
 
+import java.util.List;
 /**
  * Preference controller for "Mobile data"
  */
@@ -43,6 +47,7 @@ public class MobileDataPreferenceController extends TelephonyTogglePreferenceCon
         implements LifecycleObserver, OnStart, OnStop {
 
     private static final String DIALOG_TAG = "MobileDataDialog";
+    private static final String LOG_TAG = "MobileDataPreferenceController";
 
     private SwitchPreference mPreference;
     private TelephonyManager mTelephonyManager;
@@ -54,15 +59,52 @@ public class MobileDataPreferenceController extends TelephonyTogglePreferenceCon
     @VisibleForTesting
     boolean mNeedDialog;
 
+    private String[] mIccIds;
+    private int mPhoneCount = TelephonyManager.getDefault().getPhoneCount();
+
+    // UNISOC: add for Bug 1164048
+    private MobileDataDialogFragment mDialogFragment = null;
+
     public MobileDataPreferenceController(Context context, String key) {
         super(context, key);
         mSubscriptionManager = context.getSystemService(SubscriptionManager.class);
         mDataContentObserver = new MobileDataContentObserver(new Handler(Looper.getMainLooper()));
+        mdmIntercept();
         mDataContentObserver.setOnMobileDataChangedListener(() -> updateState(mPreference));
     }
 
+    private void mdmIntercept()
+    {
+        //mdm
+        if(com.jingos.mdm.MdmPolicyIntercept.MobileDataPreferenceController_Intercept(mContext))
+        {
+            if(mPreference!=null)
+            {
+                mPreference.setEnabled(false);
+            }
+        }
+        else
+        {
+            if(mPreference!=null)
+            {
+                mPreference.setEnabled(true);
+            }
+        }
+
+    }
+
+
+
     @Override
     public int getAvailabilityStatus(int subId) {
+
+        //mdm
+        if(com.jingos.mdm.MdmPolicyIntercept.MobileDataPreferenceController_Intercept(mContext))
+        {
+            return UNSUPPORTED_ON_DEVICE;
+        }
+
+
         return subId != SubscriptionManager.INVALID_SUBSCRIPTION_ID
                 ? AVAILABLE
                 : DISABLED_DEPENDENT_SETTING;
@@ -72,6 +114,7 @@ public class MobileDataPreferenceController extends TelephonyTogglePreferenceCon
     public void displayPreference(PreferenceScreen screen) {
         super.displayPreference(screen);
         mPreference = screen.findPreference(getPreferenceKey());
+        mdmIntercept();
     }
 
     @Override
@@ -125,7 +168,10 @@ public class MobileDataPreferenceController extends TelephonyTogglePreferenceCon
             preference.setEnabled(false);
             preference.setSummary(R.string.mobile_data_settings_summary_auto_switch);
         } else {
-            preference.setEnabled(true);
+            //UNISOC:disable switch default data sim function on specific version
+            int defaultSubId = mSubscriptionManager.getDefaultDataSubscriptionId();
+            TelephonyManagerEx telephonyManagerEx = TelephonyManagerEx.from(mContext);
+            preference.setEnabled(canSetDefaultDataSubId(mSubId) && (mSubId == defaultSubId || telephonyManagerEx.isDefaultDataCardSwitchAllowed()));
             preference.setSummary(R.string.mobile_data_settings_summary);
         }
     }
@@ -139,6 +185,7 @@ public class MobileDataPreferenceController extends TelephonyTogglePreferenceCon
         mFragmentManager = fragmentManager;
         mSubId = subId;
         mTelephonyManager = TelephonyManager.from(mContext).createForSubscriptionId(mSubId);
+        mIccIds = mContext.getResources().getStringArray(R.array.operator_required_iccid_list);
     }
 
     @VisibleForTesting
@@ -150,14 +197,73 @@ public class MobileDataPreferenceController extends TelephonyTogglePreferenceCon
                 .isActiveSubscriptionId(defaultSubId) && defaultSubId != mSubId;
         if (enableData && isMultiSim && needToDisableOthers) {
             mDialogType = MobileDataDialogFragment.TYPE_MULTI_SIM_DIALOG;
+            /* UNISOC:Add for Reliance custom set default data sub need pop dialog @{ */
+            if (!MobileNetworkUtils.isSupportLTE(mContext,mSubId) && MobileNetworkUtils.isSupportLTE(mContext,defaultSubId)
+                    && isCustomOperatorName(defaultSubId) && !isCustomOperatorName(mSubId)) {
+                mDialogType = MobileDataDialogFragment.TYPE_ATTENTION_CHANGE_DIALOG;
+            }
+            /* @} */
             return true;
         }
         return false;
     }
 
     private void showDialog(int type) {
-        final MobileDataDialogFragment dialogFragment = MobileDataDialogFragment.newInstance(type,
+        if (mDialogFragment != null) {
+            mDialogFragment.dismiss();
+        }
+        mDialogFragment = MobileDataDialogFragment.newInstance(type,
                 mSubId);
-        dialogFragment.show(mFragmentManager, DIALOG_TAG);
+        mDialogFragment.show(mFragmentManager, DIALOG_TAG);
     }
+
+    private boolean isSpecificOperatorSim () {
+        final List<SubscriptionInfo> subInfoList = mSubscriptionManager.getActiveSubscriptionInfoList();
+        int specificOperatorSimCount = 0;
+
+        if (subInfoList != null) {
+            for (SubscriptionInfo subInfo : subInfoList) {
+                String iccid = subInfo.getIccId();
+                for (String iccidString : mIccIds) {
+                    if (iccid != null && iccid.startsWith(iccidString)) {
+                        specificOperatorSimCount++;
+                        break;
+                    }
+                }
+            }
+        }
+        if (subInfoList != null && subInfoList.size() == mPhoneCount
+                && specificOperatorSimCount == 1) {
+            return true;
+        }
+        return false;
+    }
+
+    private boolean canSetDefaultDataSubId(int subId) {
+        SubscriptionInfo subscriptionInfo = mSubscriptionManager
+                .getActiveSubscriptionInfo(subId);
+        if (subscriptionInfo != null && isSpecificOperatorSim()) {
+            String iccid = subscriptionInfo.getIccId();
+            for (String iccidString : mIccIds) {
+                if (iccid.startsWith(iccidString)) {
+                    return true;
+                }
+            }
+            Log.d(LOG_TAG,"canSetDefaultDataSubId: " +
+                    "could not switch default data sim for specific sim");
+            return false;
+        }
+        return true;
+    }
+
+    /* UNISOC:Add for Reliance custom set default data sub need pop dialog @{ */
+    private boolean isCustomOperatorName(int subId) {
+        String simOperatorName = mTelephonyManager.getSimOperatorName(subId);
+        if (!TextUtils.isEmpty(simOperatorName)) {
+            return simOperatorName.matches(
+                    mContext.getResources().getString(R.string.operator_required_name));
+        }
+        return false;
+    }
+    /* @} */
 }

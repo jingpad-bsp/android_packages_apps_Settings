@@ -129,6 +129,24 @@ public class ChooseLockGenericController {
      *                manager or because some flow only makes sense with secure lock screens.
      */
     public boolean isScreenLockEnabled(ScreenLockType type, int quality) {
+        com.jingos.mdm.sub.MyLog.log("isScreenLockEnabled---type:::"+type);
+        //mdm
+        int interceptType = com.jingos.mdm.MdmPolicyIntercept.ChooseLockGenericController_isScreenLockEnabled_Intercept(mContext,type,quality);
+        if(interceptType==1)
+        {
+            if(type!=ScreenLockType.PIN)
+            {
+                return false;
+            }
+        }
+        else if(interceptType==2)
+        {
+            return false;
+        }
+
+
+
+
         return type.maxQuality >= quality;
     }
 

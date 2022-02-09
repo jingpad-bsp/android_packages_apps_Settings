@@ -196,7 +196,7 @@
     <bool name="config_show_branded_account_in_device_info">true</bool>
 
     <!-- Whether or not device header widget tile should display in device info page -->
-    <bool name="config_show_device_header_in_device_info">true</bool>
+    <bool name="config_show_device_header_in_device_info">false</bool>
 
     <!-- Whether or not TopLevelSettings should force rounded icon for injected tiles -->
     <bool name="config_force_rounded_icon_TopLevelSettings">true</bool>
@@ -410,7 +410,7 @@
     <string name="config_nearby_devices_slice_uri" translatable="false">content://com.google.android.gms.nearby.fastpair/device_status_list_item</string>
 
     <!-- Grayscale settings intent -->
-    <string name="config_grayscale_settings_intent" translate="false"></string>
+    <string name="config_grayscale_settings_intent" translatable="false"></string>
 
     <!-- List containing the injected tile keys which are suppressed. -->
     <string-array name="config_suppress_injected_tile_keys" translatable="false"/>

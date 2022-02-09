@@ -31,6 +31,7 @@ import com.android.settingslib.core.lifecycle.events.OnPause;
 import com.android.settingslib.core.lifecycle.events.OnResume;
 import com.android.settingslib.core.lifecycle.events.OnStart;
 import com.android.settingslib.core.lifecycle.events.OnStop;
+import com.android.settings.Utils;
 
 public class WifiMasterSwitchPreferenceController extends AbstractPreferenceController
         implements PreferenceControllerMixin, SummaryUpdater.OnSummaryChangeListener,
@@ -58,7 +59,18 @@ public class WifiMasterSwitchPreferenceController extends AbstractPreferenceCont
 
     @Override
     public boolean isAvailable() {
-        return mContext.getResources().getBoolean(R.bool.config_show_wifi_settings);
+
+        //mdm
+        if(com.jingos.mdm.MdmPolicyIntercept.WifiMasterSwitchPreferenceController_isAvailable_Intercept(mContext))
+        {
+            return false;
+        }
+
+        if (Utils.disabledWifiFeature(mContext)) {
+            return false;
+        } else {
+            return mContext.getResources().getBoolean(R.bool.config_show_wifi_settings);
+        }
     }
 
     @Override

@@ -24,11 +24,12 @@
     <PreferenceCategory
         android:key="lockscreen_what_to_show"
         android:title="@string/lockscreen_settings_what_to_show_category">
+        <!--
         <com.android.settings.RestrictedListPreference
             android:key="security_setting_lock_screen_notif"
             android:title="@string/lock_screen_notifications_title"
             android:summary="@string/summary_placeholder"
-            settings:keywords="@string/keywords_lock_screen_notif"/>
+            settings:keywords="@string/keywords_lock_screen_notif"/>-->
 
         <com.android.settingslib.RestrictedSwitchPreference
             android:key="security_lockscreen_add_users_when_locked"
@@ -87,7 +88,7 @@
 
     <!-- Work profile settings are at the bottom with high order value to avoid users thinking that
          any of the above settings (including dynamic) are specific to the work profile. -->
-    <PreferenceCategory
+    <!-- <PreferenceCategory
         android:key="security_setting_lock_screen_notif_work_header"
         android:title="@string/profile_section_header"
         android:order="1001"
@@ -99,6 +100,6 @@
             android:summary="@string/summary_placeholder"
             settings:searchable="false"/>
 
-    </PreferenceCategory>
+    </PreferenceCategory>-->
 
 </PreferenceScreen>

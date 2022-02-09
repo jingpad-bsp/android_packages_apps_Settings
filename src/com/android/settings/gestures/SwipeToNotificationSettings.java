@@ -70,7 +70,8 @@ public class SwipeToNotificationSettings extends DashboardFragment {
                         Context context, boolean enabled) {
                     final SearchIndexableResource sir = new SearchIndexableResource(context);
                     sir.xmlResId = R.xml.swipe_to_notification_settings;
-                    return Arrays.asList(sir);
+                    //return Arrays.asList(sir);
+                    return null;
                 }
 
                 @Override

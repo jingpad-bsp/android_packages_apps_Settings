@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:descendantFocusability="blocksDescendants"
+    android:gravity="center_horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/pattern_password_title_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="49dp"
+        android:text="@string/jingos_pattern_passwd_title"
+        android:textColor="@color/jingos_simple_passwd_number"
+        android:textSize="18sp" />
+
+    <TextView
+        android:id="@+id/pattern_password_summary_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="31dp"
+        android:text="@string/jingos_pattern_passwd_summary_confirm"
+        android:textSize="14sp" />
+
+    <TextView
+        android:id="@+id/errorText"
+        style="@style/TextAppearance.ErrorText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="31dp"
+        android:accessibilityLiveRegion="polite"
+        android:textSize="14sp"
+        android:visibility="gone" />
+
+    <com.android.internal.widget.LockPatternView
+        android:id="@+id/pattern_password_lp"
+        style="@style/JingLockPatternStyle"
+        android:layout_width="250dp"
+        android:layout_height="250dp"
+        android:layout_gravity="center"
+        android:layout_marginTop="30dp" />
+
+    <LinearLayout
+        android:id="@+id/pattern_bg_ll"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="40dp"
+        android:clipChildren="false"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/pattern_password_clear_tv"
+            android:layout_width="@dimen/button_w"
+            android:layout_height="@dimen/button_w"
+            android:background="@drawable/number_text_selector"
+            android:gravity="center"
+            android:text="@string/delete"
+            android:textColor="@color/jingos_passwd_clear_de"
+            android:textSize="20sp" />
+
+        <TextView
+            android:id="@+id/pattern_next_tv"
+            android:layout_width="@dimen/button_w"
+            android:layout_height="@dimen/button_w"
+            android:layout_marginStart="162dp"
+            android:background="@drawable/number_text_selector"
+            android:gravity="center"
+            android:text="@string/jingos_complex_passwd_next"
+            android:textColor="@color/jingos_passwd_clear_de"
+            android:textSize="20sp" />
+    </LinearLayout>
+    <Button
+        android:id="@+id/cancelButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone" />
+</LinearLayout>

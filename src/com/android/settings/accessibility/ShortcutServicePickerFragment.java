@@ -113,7 +113,11 @@ public class ShortcutServicePickerFragment extends RadioButtonPickerFragment {
 
     @Override
     protected boolean setDefaultKey(String key) {
-        Settings.Secure.putString(getContext().getContentResolver(),
+        final Context context = getContext();
+        if (context == null) {
+            return false;
+        }
+        Settings.Secure.putString(context.getContentResolver(),
                 Settings.Secure.ACCESSIBILITY_SHORTCUT_TARGET_SERVICE, key);
         return true;
     }

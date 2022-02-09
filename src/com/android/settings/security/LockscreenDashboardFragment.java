@@ -102,6 +102,7 @@ public class LockscreenDashboardFragment extends DashboardFragment
     protected List<AbstractPreferenceController> createPreferenceControllers(Context context) {
         final List<AbstractPreferenceController> controllers = new ArrayList<>();
         final Lifecycle lifecycle = getSettingsLifecycle();
+        /*** 
         final LockScreenNotificationPreferenceController notificationController =
                 new LockScreenNotificationPreferenceController(context,
                         KEY_LOCK_SCREEN_NOTIFICATON,
@@ -109,6 +110,7 @@ public class LockscreenDashboardFragment extends DashboardFragment
                         KEY_LOCK_SCREEN_NOTIFICATON_WORK_PROFILE);
         lifecycle.addObserver(notificationController);
         controllers.add(notificationController);
+        ***/
         mOwnerInfoPreferenceController =
                 new OwnerInfoPreferenceController(context, this, lifecycle);
         controllers.add(mOwnerInfoPreferenceController);

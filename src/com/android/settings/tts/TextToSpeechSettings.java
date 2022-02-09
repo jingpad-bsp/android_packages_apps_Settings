@@ -496,7 +496,10 @@ public class TextToSpeechSettings extends SettingsPreferenceFragment
             return;
         }
         Locale currentLocale = null;
-        if (!mEnginesHelper.isLocaleSetToDefaultForEngine(mTts.getCurrentEngine())) {
+
+        //Add null pointer checking for Bug 1472178: settings crash after installed com.iflytek.cmcc
+        if (mTts.getCurrentEngine() != null &&
+                !mEnginesHelper.isLocaleSetToDefaultForEngine(mTts.getCurrentEngine())) {
             currentLocale = mEnginesHelper.getLocalePrefForEngine(mTts.getCurrentEngine());
         }
 
@@ -647,7 +650,9 @@ public class TextToSpeechSettings extends SettingsPreferenceFragment
         mLocalePreference.setSummary(mLocalePreference.getEntries()[selectedLocaleIndex]);
         mSelectedLocaleIndex = selectedLocaleIndex;
 
-        mEnginesHelper.updateLocalePrefForEngine(mTts.getCurrentEngine(), locale);
+        if (mTts.getCurrentEngine() != null) {
+            mEnginesHelper.updateLocalePrefForEngine(mTts.getCurrentEngine(), locale);
+        }
 
         // Null locale means "use system default"
         mTts.setLanguage((locale != null) ? locale : Locale.getDefault());

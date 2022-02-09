@@ -86,6 +86,7 @@ public class SwipeToNotificationPreferenceController extends GesturePreferenceCo
     }
 
     public static boolean isAvailable(Context context) {
-        return isGestureAvailable(context);
+        //return isGestureAvailable(context);
+        return false;
     }
 }

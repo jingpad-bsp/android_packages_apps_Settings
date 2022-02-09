@@ -164,7 +164,11 @@ public final class PhysicalKeyboardFragment extends SettingsPreferenceFragment
         for (HardKeyboardDeviceInfo hardKeyboardDeviceInfo : newHardKeyboards) {
             // TODO(yukawa): Consider using com.android.settings.widget.GearPreference
             final Preference pref = new Preference(getPrefContext());
-            pref.setTitle(hardKeyboardDeviceInfo.mDeviceName);
+            if("Sprd Keyboard".equals(hardKeyboardDeviceInfo.mDeviceName)) {
+                pref.setTitle(getActivity().getString(R.string.jingos_keyboard_name));
+            } else {
+                pref.setTitle(hardKeyboardDeviceInfo.mDeviceName);
+            }
             pref.setSummary(hardKeyboardDeviceInfo.mLayoutLabel);
             pref.setOnPreferenceClickListener(preference -> {
                 showKeyboardLayoutDialog(hardKeyboardDeviceInfo.mDeviceIdentifier);

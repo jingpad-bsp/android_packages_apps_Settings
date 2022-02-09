@@ -50,4 +50,7 @@ public class BluetoothProgressCategory extends ProgressCategory {
     private void init() {
         setEmptyTextRes(R.string.bluetooth_no_devices_found);
     }
+    public void setOrder(int order){
+        super.setOrder( DEFAULT_ORDER);
+    }
 }

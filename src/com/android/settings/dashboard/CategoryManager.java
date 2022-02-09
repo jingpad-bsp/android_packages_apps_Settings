@@ -112,7 +112,9 @@ public class CategoryManager {
             }
             mCategoryByKeyMap.clear();
             mCategories = TileUtils.getCategories(context, mTileByComponentCache);
-            for (DashboardCategory category : mCategories) {
+            int size = mCategories.size();
+            for (int i = 0; i < size; i++) {
+                DashboardCategory category = mCategories.get(i);
                 mCategoryByKeyMap.put(category.key, category);
             }
             backwardCompatCleanupForCategory(mTileByComponentCache, mCategoryByKeyMap);

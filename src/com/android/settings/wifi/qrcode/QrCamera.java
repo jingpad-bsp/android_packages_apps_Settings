@@ -123,6 +123,7 @@ public class QrCamera extends Handler {
         if (mCamera != null) {
             mCamera.stopPreview();
         }
+        releaseCamera();
     }
 
     /** The scanner which includes this QrCamera class should implement this */
@@ -176,9 +177,12 @@ public class QrCamera extends Handler {
         mPreviewSize = getBestPreviewSize(mParameters);
         mParameters.setPreviewSize(mPreviewSize.getWidth(), mPreviewSize.getHeight());
         Size pictureSize = getBestPictureSize(mParameters);
-        mParameters.setPreviewSize(pictureSize.getWidth(), pictureSize.getHeight());
+        mParameters.setPictureSize(pictureSize.getWidth(), pictureSize.getHeight());
 
-        if (mParameters.getSupportedFlashModes().contains(Parameters.FLASH_MODE_OFF)) {
+
+        final List<String> supportedFlashModes = mParameters.getSupportedFlashModes();
+        if (supportedFlashModes != null &&
+                supportedFlashModes.contains(Parameters.FLASH_MODE_OFF)) {
             mParameters.setFlashMode(Parameters.FLASH_MODE_OFF);
         }
 
@@ -288,6 +292,7 @@ public class QrCamera extends Handler {
                 for (int i = 0; i < numberOfCameras; ++i) {
                     Camera.getCameraInfo(i, cameraInfo);
                     if (cameraInfo.facing == CameraInfo.CAMERA_FACING_BACK) {
+                        releaseCamera();
                         mCamera = Camera.open(i);
                         mCamera.setPreviewTexture(surface);
                         mCameraOrientation = cameraInfo.orientation;
@@ -296,6 +301,7 @@ public class QrCamera extends Handler {
                 }
                 if (mCamera == null) {
                     Log.e(TAG, "Cannot find available back camera.");
+                    releaseCamera();
                     mScannerCallback.handleCameraFailure();
                     return false;
                 }
@@ -314,6 +320,13 @@ public class QrCamera extends Handler {
                 mScannerCallback.handleCameraFailure();
                 return false;
             }
+        }
+    }
+
+    private void releaseCamera() {
+        if (mCamera != null) {
+            mCamera.release();
+            mCamera = null;
         }
     }
 

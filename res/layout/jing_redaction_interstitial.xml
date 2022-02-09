@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:clipChildren="false"
+    android:clipToPadding="false"
+    android:gravity="center"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/sud_layout_description"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="18sp"
+        android:textColor="@color/black"
+        android:text="@string/lock_screen_notifications_interstitial_message" />
+
+    <RadioGroup
+        android:id="@+id/radio_group"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="55dp"
+        android:checkedButton="@+id/redact_sensitive">
+
+        <com.android.settings.RestrictedRadioButton
+            android:id="@+id/redact_sensitive_rb"
+            style="@style/SudRadioButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="0dp"
+            android:minHeight="?android:attr/listPreferredItemHeight"
+            android:text="@string/lock_screen_notifications_summary_hide" />
+
+        <com.android.settings.RestrictedRadioButton
+            android:id="@+id/redact_show_all_rb"
+            style="@style/SudRadioButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="0dp"
+            android:minHeight="?android:attr/listPreferredItemHeight"
+            android:text="@string/lock_screen_notifications_summary_show" />
+
+        <RadioButton
+            android:id="@+id/redact_hide_all_rb"
+            style="@style/SudRadioButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="0dp"
+            android:minHeight="?android:attr/listPreferredItemHeight"
+            android:text="@string/lock_screen_notifications_summary_disable" />
+
+    </RadioGroup>
+
+    <TextView
+        android:id="@+id/redact_ok_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="128dp"
+        android:text="@string/jingos_redact_ok"
+        android:textColor="#3C4BE8"
+        android:textSize="18sp" />
+
+</LinearLayout>

@@ -58,6 +58,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import com.android.settings.dashboard.SummaryLoader;
+
 @SearchIndexable(forTarget = SearchIndexable.ALL & ~SearchIndexable.ARC)
 public class DevelopmentSettingsDashboardFragment extends RestrictedDashboardFragment
         implements SwitchBar.OnSwitchChangeListener, OemUnlockDialogHost, AdbDialogHost,
@@ -538,4 +540,24 @@ public class DevelopmentSettingsDashboardFragment extends RestrictedDashboardFra
                             null /* bluetoothA2dpConfigStore */);
                 }
             };
+
+
+    private static class SummaryProvider implements SummaryLoader.SummaryProvider {
+
+        private final Context mContext;
+        private final SummaryLoader mSummaryLoader;
+
+        public SummaryProvider(Context context, SummaryLoader summaryLoader) {
+            mContext = context;
+            mSummaryLoader = summaryLoader;
+        }
+
+        @Override
+        public void setListening(boolean listening) {
+            mSummaryLoader.setSummary(this, mContext.getString(R.string.development_summary));
+        }
+    }
+
+    public static final SummaryLoader.SummaryProviderFactory SUMMARY_PROVIDER_FACTORY
+            = (activity, summaryLoader) -> new SummaryProvider(activity, summaryLoader);            
 }

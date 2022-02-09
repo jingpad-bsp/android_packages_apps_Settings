@@ -1835,7 +1835,12 @@
     <string name="lockpattern_settings_choose_lock_pattern" msgid="1652352830005653447">"Налашт. ключ розблок."</string>
     <string name="lockpattern_settings_change_lock_pattern" msgid="1123908306116495545">"Змінити ключ розблокув."</string>
     <string name="lockpattern_settings_help_how_to_record" msgid="2614673439060830433">"Як намалювати ключ розблокування"</string>
-    <string name="lockpattern_too_many_failed_confirmation_attempts" msgid="6909161623701848863">"Забагато невдалих спроб. Повторіть через <xliff:g id="NUMBER">%d</xliff:g> с."</string>
+    <plurals name="lockpattern_too_many_failed_confirmation_attempts" formatted="false" msgid="6909161623701848863">
+        <item quantity="one">Забагато невдалих спроб. Повторіть спробу через <xliff:g id="NUMBER">%d</xliff:g> секунду.</item>
+        <item quantity="few">Забагато невдалих спроб. Повторіть спробу через <xliff:g id="NUMBER">%d</xliff:g> секунди.</item>
+        <item quantity="many">Забагато невдалих спроб. Повторіть спробу через <xliff:g id="NUMBER">%d</xliff:g> секунд.</item>
+        <item quantity="other">Забагато невдалих спроб. Повторіть спробу через <xliff:g id="NUMBER">%d</xliff:g> секунди.</item>
+    </plurals>
     <string name="activity_not_found" msgid="5551664692991605325">"Додаток не встановлено у вашому телефоні."</string>
     <string name="lock_settings_profile_title" msgid="2121876391814535295">"Безпека робочого профілю"</string>
     <string name="lock_settings_profile_screen_lock_title" msgid="3334747927367115256">"Блокування екрана робочого профілю"</string>
@@ -4791,4 +4796,21 @@
     <string name="dual_cdma_sim_warning_notification_channel_title" msgid="4144088600737896010">"Комбінація SIM-карт"</string>
     <string name="work_policy_privacy_settings" msgid="2348992644755730215">"Інформація про правила роботи"</string>
     <string name="work_policy_privacy_settings_summary" msgid="2236899807429121767">"Налаштування, якими керує адміністратор вашої організації"</string>
+        <string name="bluetooth_message_access_notification_content" msgid="5111712860712823893">"Інший пристрій хоче отримати доступ до ваших повідомлень. Натисніть, щоб дізнатися більше."</string>
+    <string name="bluetooth_message_access_dialog_title" msgid="9009836130395061579">"Дозволити доступ до повідомлень?"</string>
+    <string name="bluetooth_message_access_dialog_content" msgid="7186694737578788487">"Пристрій із Bluetooth (<xliff:g id="DEVICE_NAME_0">%1$s</xliff:g>) хоче отримати доступ до ваших повідомлень.\n\nВи ще не підключалися до пристрою \"<xliff:g id="DEVICE_NAME_1">%2$s</xliff:g>\"."</string>
+    <string name="bluetooth_phonebook_access_notification_content" msgid="9175220052703433637">"Інший пристрій хоче отримати доступ до ваших контактів і журналу викликів. Натисніть, щоб дізнатися більше."</string>
+    <string name="bluetooth_phonebook_access_dialog_title" msgid="7624607995928968721">"Дозволити доступ до контактів і журналу викликів?"</string>
+    <string name="bluetooth_phonebook_access_dialog_content" msgid="959658135522249170">"Пристрій із Bluetooth (<xliff:g id="DEVICE_NAME_0">%1$s</xliff:g>) хоче отримати доступ до ваших контактів і журналу викликів, зокрема даних про вхідні й вихідні дзвінки.\n\nВи ще не підключалися до пристрою \"<xliff:g id="DEVICE_NAME_1">%2$s</xliff:g>\"."</string>
+    <string name="request_manage_bluetooth_permission_dont_allow" msgid="8798061333407581300">"Не дозволяти"</string>
+    <string name="bluetooth_sim_card_access_notification_title" msgid="5217037846900908318">"Запити на доступ до SIM-карти"</string>
+    <string name="bluetooth_sim_card_access_notification_content" msgid="6759306429895300286">"Пристрій хоче отримати доступ до SIM-карти. Натисніть, щоб дізнатися більше."</string>
+    <string name="bluetooth_sim_card_access_dialog_title" msgid="4486768729352090174">"Дозволити доступ до SIM-карти?"</string>
+    <string name="bluetooth_sim_card_access_dialog_content" msgid="4153857191661567190">"Пристрій із Bluetooth \"<xliff:g id="DEVICE_NAME_0">%1$s</xliff:g>\" хоче отримати доступ до даних на вашій SIM-карті, зокрема до контактів.\n\nПід час підключення пристрій \"<xliff:g id="DEVICE_NAME_1">%2$s</xliff:g>\" зможе отримувати всі виклики, що надходитимуть на номер <xliff:g id="PHONE_NUMBER">%3$s</xliff:g>."</string>
+    <string name="bluetooth_connect_access_notification_title" msgid="2573547043170883947">"Доступний пристрій із Bluetooth"</string>
+    <string name="bluetooth_connect_access_notification_content" msgid="1328465545685433304">"Пристрій хоче підключитися. Натисніть, щоб дізнатися більше."</string>
+    <string name="bluetooth_connect_access_dialog_title" msgid="1948056782712451381">"Підключитися до пристрою з Bluetooth?"</string>
+    <string name="bluetooth_connect_access_dialog_content" msgid="4336436466468405850">"Пристрій \"<xliff:g id="DEVICE_NAME_0">%1$s</xliff:g>\" хоче підключитися до цього телефона.\n\nВи ще не підключалися до пристрою \"<xliff:g id="DEVICE_NAME_1">%2$s</xliff:g>\"."</string>
+    <string name="bluetooth_connect_access_dialog_negative" msgid="4944672755226375059">"Не підключатися"</string>
+    <string name="bluetooth_connect_access_dialog_positive" msgid="3630561675207269710">"Підключитися"</string>
 </resources>

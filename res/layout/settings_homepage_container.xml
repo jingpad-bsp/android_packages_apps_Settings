@@ -26,8 +26,7 @@
     <androidx.core.widget.NestedScrollView
         android:id="@+id/main_content_scrollable_container"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_behavior="com.android.settings.widget.FloatingAppBarScrollingViewBehavior">
+        android:layout_height="match_parent">
 
         <LinearLayout
             android:id="@+id/homepage_container"
@@ -40,6 +39,7 @@
                 android:id="@+id/contextual_cards_content"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:visibility="gone"
                 android:layout_marginStart="@dimen/contextual_card_side_margin"
                 android:layout_marginEnd="@dimen/contextual_card_side_margin"/>
 

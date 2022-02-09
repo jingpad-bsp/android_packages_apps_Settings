@@ -43,6 +43,13 @@ public class AutoTimeZonePreferenceController extends AbstractPreferenceControll
 
     @Override
     public boolean isAvailable() {
+
+        //mdm
+        if(com.jingos.mdm.MdmPolicyIntercept.UserTimeMgrPolicy_Intercept(mContext))
+        {
+            return false;
+        }
+
         return !(Utils.isWifiOnly(mContext) || mIsFromSUW);
     }
 
@@ -56,6 +63,8 @@ public class AutoTimeZonePreferenceController extends AbstractPreferenceControll
         if (!(preference instanceof SwitchPreference)) {
             return;
         }
+
+
         ((SwitchPreference) preference).setChecked(isEnabled());
     }
 

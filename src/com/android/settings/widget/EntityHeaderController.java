@@ -147,7 +147,11 @@ public class EntityHeaderController {
      * accessibility purposes.
      */
     public EntityHeaderController setIcon(ApplicationsState.AppEntry appEntry) {
-        mIcon = IconDrawableFactory.newInstance(mAppContext).getBadgedIcon(appEntry.info);
+        if (ApplicationsState.FILTER_ICON.filterApp(appEntry)) {
+            mIcon = IconDrawableFactory.newInstance(mAppContext).getBadgedIcon(appEntry.info);
+        } else {
+            mIcon = mAppContext.getDrawable(android.R.drawable.sym_def_app_icon);
+        }
         return this;
     }
 

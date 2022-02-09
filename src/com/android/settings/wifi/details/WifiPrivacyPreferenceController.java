@@ -155,6 +155,8 @@ public class WifiPrivacyPreferenceController extends BasePreferenceController im
             }
 
             if (newConfig.macRandomizationSetting != mWifiConfiguration.macRandomizationSetting) {
+                final DropDownPreference dropDownPreference = (DropDownPreference) mPreference;
+                dropDownPreference.setValue(String.valueOf(newConfig.macRandomizationSetting));
                 mWifiConfiguration = newConfig;
                 onPreferenceChange(mPreference, String.valueOf(newConfig.macRandomizationSetting));
             }

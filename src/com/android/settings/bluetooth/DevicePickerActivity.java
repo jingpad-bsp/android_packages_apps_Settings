@@ -16,11 +16,16 @@
 
 package com.android.settings.bluetooth;
 
+import static android.view.WindowManager.LayoutParams.SYSTEM_FLAG_HIDE_NON_SYSTEM_OVERLAY_WINDOWS;
+
+import android.app.settings.SettingsEnums;
+import android.content.Intent;
 import android.os.Bundle;
-
+import android.view.KeyEvent;
 import androidx.fragment.app.FragmentActivity;
-
 import com.android.settings.R;
+import com.android.settings.search.SearchFeatureProvider;
+import com.android.settings.overlay.FeatureFactory;
 
 /**
  * Activity for Bluetooth device picker dialog. The device picker logic
@@ -31,6 +36,22 @@ public final class DevicePickerActivity extends FragmentActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getWindow().addSystemFlags(SYSTEM_FLAG_HIDE_NON_SYSTEM_OVERLAY_WINDOWS);
         setContentView(R.layout.bluetooth_device_picker);
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        switch (keyCode) {
+            case KeyEvent.KEYCODE_SEARCH:
+                final SearchFeatureProvider sfp = FeatureFactory.getFactory(getApplicationContext())
+                        .getSearchFeatureProvider();
+                final Intent intent = sfp.buildSearchIntent(this, SettingsEnums.BLUETOOTH_DEVICE_PICKER);
+                startActivityForResult(intent, 0 /* requestCode */);
+                return true;
+            default:
+                break;
+        }
+        return super.onKeyDown(keyCode, event);
     }
 }

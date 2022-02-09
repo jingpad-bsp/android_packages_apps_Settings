@@ -27,6 +27,7 @@ import static com.android.settings.widget.RadioButtonPreferenceWithExtraWidget.E
 
 import android.accessibilityservice.AccessibilityServiceInfo;
 import android.app.settings.SettingsEnums;
+import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -39,6 +40,7 @@ import android.provider.SearchIndexableResource;
 import android.provider.Settings;
 import android.text.TextUtils;
 import android.view.accessibility.AccessibilityManager;
+import android.view.Surface;
 
 import androidx.annotation.VisibleForTesting;
 import androidx.preference.PreferenceScreen;
@@ -193,20 +195,20 @@ public class SystemNavigationGestureSettings extends RadioButtonPickerFragment {
                     c.getText(R.string.edge_to_edge_navigation_summary),
                     KEY_SYSTEM_NAV_GESTURAL, true /* enabled */));
         }
-        if (SystemNavigationPreferenceController.isOverlayPackageAvailable(c,
-                NAV_BAR_MODE_2BUTTON_OVERLAY)) {
-            candidates.add(new NavModeCandidateInfo(
-                    c.getText(R.string.swipe_up_to_switch_apps_title),
-                    c.getText(R.string.swipe_up_to_switch_apps_summary),
-                    KEY_SYSTEM_NAV_2BUTTONS, true /* enabled */));
-        }
-        if (SystemNavigationPreferenceController.isOverlayPackageAvailable(c,
-                NAV_BAR_MODE_3BUTTON_OVERLAY)) {
-            candidates.add(new NavModeCandidateInfo(
-                    c.getText(R.string.legacy_navigation_title),
-                    c.getText(R.string.legacy_navigation_summary),
-                    KEY_SYSTEM_NAV_3BUTTONS, true /* enabled */));
-        }
+        // if (SystemNavigationPreferenceController.isOverlayPackageAvailable(c,
+        //         NAV_BAR_MODE_2BUTTON_OVERLAY)) {
+        //     candidates.add(new NavModeCandidateInfo(
+        //             c.getText(R.string.swipe_up_to_switch_apps_title),
+        //             c.getText(R.string.swipe_up_to_switch_apps_summary),
+        //             KEY_SYSTEM_NAV_2BUTTONS, true /* enabled */));
+        // }
+        // if (SystemNavigationPreferenceController.isOverlayPackageAvailable(c,
+        //         NAV_BAR_MODE_3BUTTON_OVERLAY)) {
+        //     candidates.add(new NavModeCandidateInfo(
+        //             c.getText(R.string.legacy_navigation_title),
+        //             c.getText(R.string.legacy_navigation_summary),
+        //             KEY_SYSTEM_NAV_3BUTTONS, true /* enabled */));
+        // }
 
         return candidates;
     }
@@ -225,7 +227,8 @@ public class SystemNavigationGestureSettings extends RadioButtonPickerFragment {
             return false;
         }
 
-        setCurrentSystemNavigationMode(c, mOverlayManager, key);
+        //UNISOC: Modify for bug 1406777 Hide the NavigationBar and wait for the update to complete
+        setCurrentSystemNavigationMode(c, mOverlayManager, key, getActivity().isInMultiWindowMode());
         setIllustrationVideo(mVideoPreference, key);
         if (TextUtils.equals(KEY_SYSTEM_NAV_GESTURAL, key) && (
                 isAnyServiceSupportAccessibilityButton() || isNavBarMagnificationEnabled())) {
@@ -277,6 +280,34 @@ public class SystemNavigationGestureSettings extends RadioButtonPickerFragment {
             return KEY_SYSTEM_NAV_3BUTTONS;
         }
     }
+
+    /*UNISOC: Add for bug 1406777 Hide the NavigationBar and wait for the update to complete @{*/
+    private void setCurrentSystemNavigationMode(Context context, IOverlayManager overlayManager,
+            String key, boolean isMultiWindowMode) {
+        if(!getCurrentSystemNavigationMode(context).equals(key)
+                && ((isMultiWindowMode && getResources().getConfiguration().orientation != Surface.ROTATION_0
+                && KEY_SYSTEM_NAV_GESTURAL.equals(key)
+                && Settings.System.getIntForUser(context.getContentResolver(), "show_navigationbar", 0, ActivityManager.getCurrentUser()) == 1)
+                || (Settings.System.getIntForUser(context.getContentResolver(), "show_navigationbar", 1, ActivityManager.getCurrentUser()) == 0
+                        && !KEY_SYSTEM_NAV_3BUTTONS.equals(key)))) {
+            Settings.Secure.putIntForUser(context.getContentResolver(),
+                    Settings.Secure.NAVBAR_MODE_SETTING, 1, ActivityManager.getCurrentUser());
+        }
+
+        switch (key) {
+            case KEY_SYSTEM_NAV_GESTURAL:
+                int sensitivity = getBackSensitivity(context, overlayManager);
+                setNavBarInteractionMode(overlayManager, BACK_GESTURE_INSET_OVERLAYS[sensitivity]);
+                break;
+            case KEY_SYSTEM_NAV_2BUTTONS:
+                setNavBarInteractionMode(overlayManager, NAV_BAR_MODE_2BUTTON_OVERLAY);
+                break;
+            case KEY_SYSTEM_NAV_3BUTTONS:
+                setNavBarInteractionMode(overlayManager, NAV_BAR_MODE_3BUTTON_OVERLAY);
+                break;
+        }
+    }
+    /*}@*/
 
     @VisibleForTesting
     static void setCurrentSystemNavigationMode(Context context, IOverlayManager overlayManager,

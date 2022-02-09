@@ -114,7 +114,12 @@ public class ResetAppsHelper implements DialogInterface.OnClickListener,
                 for (int i = 0; i < apps.size(); i++) {
                     ApplicationInfo app = apps.get(i);
                     try {
-                        mNm.clearData(app.packageName, app.uid, false);
+                        //UNISOC: Add for bug1414516 "Notifications" in the application management will not be restored to the default state.
+                        mNm.setNotificationsEnabledForPackage(app.packageName, app.uid, true);
+                        // Add for bug1137413: Avoid to clear system apps notification
+                        if (!app.isSystemApp()) {
+                            mNm.clearData(app.packageName, app.uid, false);
+                        }
                     } catch (android.os.RemoteException ex) {
                     }
                     if (!app.enabled) {

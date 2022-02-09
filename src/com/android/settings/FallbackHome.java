@@ -35,12 +35,18 @@ import android.os.UserHandle;
 import android.os.UserManager;
 import android.provider.Settings;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.WindowManager.LayoutParams;
 import android.view.animation.AnimationUtils;
 
 import java.util.Objects;
 
+import android.hardware.input.InputManager;
+import android.view.InputDevice;
+
+
+import static android.provider.Settings.Secure.TP_WAKE_GESTURE_ENABLED;
 public class FallbackHome extends Activity {
     private static final String TAG = "FallbackHome";
     private static final int PROGRESS_TIMEOUT = 2000;
@@ -100,6 +106,13 @@ public class FallbackHome extends Activity {
         }
         getWindow().getDecorView().setSystemUiVisibility(flags);
 
+        judgeJingOSKeyBoard();
+
+        //tp wake gesture is disabled by default, so if user has set it to enable, we need to enable it after boot complete.
+        int setting = Settings.Secure.getInt(getContentResolver(), TP_WAKE_GESTURE_ENABLED, 0);
+        if(setting == 1) {
+            Settings.Secure.putInt(getContentResolver(), TP_WAKE_GESTURE_ENABLED, 1);
+        }
         registerReceiver(mReceiver, new IntentFilter(Intent.ACTION_USER_UNLOCKED));
         maybeFinish();
     }
@@ -200,4 +213,34 @@ public class FallbackHome extends Activity {
             maybeFinish();
         }
     };
+
+    /* UNISOC:1186856 Settings crashed in monkey test @{ */
+    @Override
+    public boolean dispatchKeyEvent(KeyEvent event) {
+        switch (event.getKeyCode()) {
+             case KeyEvent.KEYCODE_SEARCH:
+                 return true;
+             default:
+                 break;
+        }
+        return super.dispatchKeyEvent(event);
+    }
+    /* @} */
+
+    //如果连着灵动键盘开机，需要自动打开旋转屏幕
+    private void judgeJingOSKeyBoard() {
+        InputManager im = (InputManager) getSystemService(Context.INPUT_SERVICE);
+        if (im != null) {
+            for (int deviceId : InputDevice.getDeviceIds()) {
+                final InputDevice device = InputDevice.getDevice(deviceId);
+                if (device == null || device.isVirtual() || !device.isFullKeyboard()) {
+                    continue;
+                }
+
+                if("Sprd Keyboard".equals(device.getName())) {
+                    Settings.System.putInt(getContentResolver(), Settings.System.ACCELEROMETER_ROTATION, 1);
+                }
+            }
+        }
+    }
 }

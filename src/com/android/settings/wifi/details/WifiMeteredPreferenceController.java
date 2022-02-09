@@ -60,6 +60,10 @@ public class WifiMeteredPreferenceController extends BasePreferenceController im
         return AVAILABLE;
     }
 
+    public void setWifiConfiguration(WifiConfiguration wifiConfiguration) {
+        mWifiConfiguration = wifiConfiguration;
+    }
+
     @Override
     public boolean onPreferenceChange(Preference preference, Object newValue) {
         if (mWifiConfiguration != null) {
@@ -100,6 +104,8 @@ public class WifiMeteredPreferenceController extends BasePreferenceController im
             }
 
             if (newConfig.meteredOverride != mWifiConfiguration.meteredOverride) {
+                final DropDownPreference dropDownPreference = (DropDownPreference) mPreference;
+                dropDownPreference.setValue(String.valueOf(newConfig.meteredOverride));
                 mWifiConfiguration = newConfig;
                 onPreferenceChange(mPreference, String.valueOf(newConfig.meteredOverride));
             }

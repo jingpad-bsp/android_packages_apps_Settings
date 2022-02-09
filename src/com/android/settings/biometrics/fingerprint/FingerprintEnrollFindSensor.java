@@ -130,8 +130,10 @@ public class FingerprintEnrollFindSensor extends BiometricEnrollBase {
     }
 
     protected void onSkipButtonClick(View view) {
-        setResult(RESULT_SKIP);
-        finish();
+        //setResult(RESULT_SKIP);
+        //finish();
+        mNextClicked = true;
+        proceedToEnrolling(true /* cancelEnrollment */);
     }
 
     private void proceedToEnrolling(boolean cancelEnrollment) {

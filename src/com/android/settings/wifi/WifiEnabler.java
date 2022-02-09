@@ -102,23 +102,29 @@ public class WifiEnabler implements SwitchWidgetController.OnSwitchChangeListene
         mIntentFilter.addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION);
 
         setupSwitchController();
+
+
+
     }
 
     public void setupSwitchController() {
         final int state = mWifiManager.getWifiState();
         handleWifiStateChanged(state);
-        if (!mListeningToOnSwitchChange) {
+        /*if (!mListeningToOnSwitchChange) {
             mSwitchWidget.startListening();
             mListeningToOnSwitchChange = true;
-        }
+        }*/
         mSwitchWidget.setupView();
+
+
+
     }
 
     public void teardownSwitchController() {
-        if (mListeningToOnSwitchChange) {
+        /*if (mListeningToOnSwitchChange) {
             mSwitchWidget.stopListening();
             mListeningToOnSwitchChange = false;
-        }
+        }*/
         mSwitchWidget.teardownView();
     }
 
@@ -141,6 +147,15 @@ public class WifiEnabler implements SwitchWidgetController.OnSwitchChangeListene
     }
 
     private void handleWifiStateChanged(int state) {
+
+        //mdm
+        if(com.jingos.mdm.MdmPolicyIntercept.WifiEnabler_onSwitchToggled_Intercept(mContext,true))
+        {
+            mWifiManager.setWifiEnabled(false);
+            mSwitchWidget.setChecked(false);
+            return;
+        }
+
         // Clear any previous state
         mSwitchWidget.setDisabledByAdmin(null);
 
@@ -207,6 +222,16 @@ public class WifiEnabler implements SwitchWidgetController.OnSwitchChangeListene
             mSwitchWidget.setChecked(false);
             return false;
         }
+
+
+        //mdm
+        if(com.jingos.mdm.MdmPolicyIntercept.WifiEnabler_onSwitchToggled_Intercept(mContext,isChecked))
+        {
+            mWifiManager.setWifiEnabled(false);
+            mSwitchWidget.setChecked(false);
+            return false;
+        }
+
 
         if (isChecked) {
             mMetricsFeatureProvider.action(mContext, SettingsEnums.ACTION_WIFI_ON);

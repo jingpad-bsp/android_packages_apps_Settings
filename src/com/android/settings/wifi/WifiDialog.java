@@ -22,6 +22,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -139,7 +140,31 @@ public class WifiDialog extends AlertDialog implements WifiConfigUiBase,
             ssidScannerButton.setVisibility(View.GONE);
             passwordScannerButton.setVisibility(View.GONE);
         }
+        for (int i = 0; i < 3; i++) {
+            mView.postOnAnimationDelayed(showIme,10 + i * 100);
+        }
+
     }
+
+    private Runnable showIme = new Runnable() {
+        @Override
+        public void run() {
+            if (!isShowing()) return;
+            final View focus = mView.findFocus();
+            if (mView.hasFocus() && null != focus) {
+                InputMethodManager imm = getContext().getSystemService(InputMethodManager.class);
+                imm.showSoftInput(focus, InputMethodManager.SHOW_FORCED, null);
+            }
+        }
+    };
+
+    @Override
+    public void dismiss() {
+        InputMethodManager imm = getContext().getSystemService(InputMethodManager.class);
+        imm.hideSoftInputFromWindow(mView.getWindowToken(), 0);
+        super.dismiss();
+    }
+
 
     public void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);

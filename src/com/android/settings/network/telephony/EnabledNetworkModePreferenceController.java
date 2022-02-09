@@ -16,38 +16,141 @@
 
 package com.android.settings.network.telephony;
 
+import static androidx.lifecycle.Lifecycle.Event.ON_START;
+import static androidx.lifecycle.Lifecycle.Event.ON_STOP;
+
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.res.Resources;
+import android.content.ContentResolver;
+import android.database.ContentObserver;
+import android.os.Handler;
+import android.os.Looper;
 import android.os.PersistableBundle;
+import android.os.SystemProperties;
 import android.provider.Settings;
+import android.provider.SettingsEx;
 import android.telephony.CarrierConfigManager;
 import android.telephony.ServiceState;
+import android.telephony.SubscriptionInfo;
 import android.telephony.SubscriptionManager;
 import android.telephony.TelephonyManager;
+import android.telephony.TelephonyManagerEx;
+import android.util.Log;
+import android.widget.Toast;
 
 import androidx.annotation.VisibleForTesting;
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleObserver;
+import androidx.lifecycle.OnLifecycleEvent;
 import androidx.preference.ListPreference;
 import androidx.preference.Preference;
+import androidx.preference.PreferenceScreen;
 
 import com.android.internal.telephony.Phone;
 import com.android.internal.telephony.PhoneConstants;
+import com.android.internal.telephony.RILConstants;
+import com.android.internal.telephony.TelephonyIntents;
+import com.android.settingslib.WirelessUtils;
+import com.android.settingslib.utils.ThreadUtils;
+import com.android.settings.network.SimLoadedListener;
+import com.android.settings.network.SubscriptionsChangeListener;
 import com.android.settings.R;
+
+import java.util.List;
 
 /**
  * Preference controller for "Enabled network mode"
  */
 public class EnabledNetworkModePreferenceController extends
         TelephonyBasePreferenceController implements
-        ListPreference.OnPreferenceChangeListener {
+        ListPreference.OnPreferenceChangeListener,LifecycleObserver,SubscriptionsChangeListener.SubscriptionsChangeListenerClient,
+        BroadcastReceiverChanged.BroadcastReceiverChangedClient,SimLoadedListener.SimLoadedListenerClient {
 
+    private static final String TAG = "EnabledNetworkModePreferenceController";
     private CarrierConfigManager mCarrierConfigManager;
     private TelephonyManager mTelephonyManager;
     private boolean mIsGlobalCdma;
     @VisibleForTesting
     boolean mShow4GForLTE;
+    private ListPreference mNetworkModePreference;
+    private PreferenceScreen mPreferenceScreen;
+    private SubscriptionsChangeListener mSubscriptionsListener;
+
+    // UNISOC:Modify for Bug1450229
+    private SimLoadedListener mSimLoadedListener;
+    private BroadcastReceiverChanged mBroadcastReceiverChanged;
+    // UNISOC: Add for Bug1176994
+    private Handler mUiHandler;
+    // UNISOC: Add for Bug1191477
+    private ContentResolver mContentResolver;
+    private ContentObserver mContentObserver;
+
+    // UNISOC:Modify for Bug1450229
+    private boolean mSimLoaded;
+    public static final int SIM_STATE_LOADED = 10;
 
     public EnabledNetworkModePreferenceController(Context context, String key) {
         super(context, key);
         mCarrierConfigManager = context.getSystemService(CarrierConfigManager.class);
+        mSubscriptionsListener = new SubscriptionsChangeListener(context, this);
+
+        // UNISOC:Modify for Bug1450229
+        mSimLoadedListener = new SimLoadedListener(context, this);
+        mBroadcastReceiverChanged = new BroadcastReceiverChanged(context,this);
+        // UNISOC: Add for Bug1176994
+        mUiHandler = new Handler(Looper.getMainLooper());
+        // UNISOC: Add for Bug1191477
+        mContentResolver = context.getContentResolver();
+    }
+
+    private final BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            if (action.equals(TelephonyIntents.ACTION_SET_RADIO_CAPABILITY_DONE)) {
+                displayPreference(mPreferenceScreen);
+                updateState(mNetworkModePreference);
+            }
+        }
+    };
+
+    @OnLifecycleEvent(ON_START)
+    public void onStart() {
+        Log.d(TAG,"onStart");
+        mSubscriptionsListener.start();
+
+        // UNISOC:Modify for Bug1450229
+        mSimLoadedListener.start();
+        mBroadcastReceiverChanged.start();
+        // UNISOC: Add for Bug1191477
+        mContentObserver = new ContentObserver(new Handler(Looper.getMainLooper())) {
+            @Override
+            public void onChange(boolean selfChange) {
+                updateState(mNetworkModePreference);
+            }
+        };
+        mContentResolver.registerContentObserver(Settings.Global.getUriFor(
+                Settings.Global.PREFERRED_NETWORK_MODE + mSubId), false, mContentObserver);
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(TelephonyIntents.ACTION_SET_RADIO_CAPABILITY_DONE);
+        mContext.registerReceiver(mBroadcastReceiver, intentFilter);
+    }
+
+    @OnLifecycleEvent(ON_STOP)
+    public void onStop() {
+        Log.d(TAG,"onStop");
+        mSubscriptionsListener.stop();
+
+        // UNISOC:Modify for Bug1450229
+        mSimLoadedListener.stop();
+        mBroadcastReceiverChanged.stop();
+        // UNISOC: Add for Bug1191477
+        if (mContentObserver != null) {
+            mContext.getContentResolver().unregisterContentObserver(mContentObserver);
+        }
+        mContext.unregisterReceiver(mBroadcastReceiver);
     }
 
     @Override
@@ -71,6 +174,8 @@ public class EnabledNetworkModePreferenceController extends
             visible = false;
         } else if (carrierConfig.getBoolean(CarrierConfigManager.KEY_WORLD_PHONE_BOOL)) {
             visible = false;
+        } else if (!isAllowedToShowNetworkTypeOption(subId)) {
+            visible = false;
         } else {
             visible = true;
         }
@@ -85,27 +190,84 @@ public class EnabledNetworkModePreferenceController extends
         final int networkMode = getPreferredNetworkMode();
         updatePreferenceEntries(listPreference);
         updatePreferenceValueAndSummary(listPreference, networkMode);
+        boolean isAirplaneModeOn = WirelessUtils.isAirplaneModeOn(mContext);
+
+        // UNISOC:Modify for Bug1450229
+        Log.d(TAG,"updateState mSimLoaded is " + mSimLoaded);
+        boolean isNetworkOptionEnabled = !isAirplaneModeOn && !isPhoneInCall() && mSimLoaded;
+        preference.setEnabled(isNetworkOptionEnabled);
+        preference.setVisible(MobileNetworkUtils.isSupportNR(mContext, mSubId));
     }
 
     @Override
     public boolean onPreferenceChange(Preference preference, Object object) {
-        final int settingsMode = Integer.parseInt((String) object);
-
-        if (mTelephonyManager.setPreferredNetworkType(mSubId, settingsMode)) {
-            Settings.Global.putInt(mContext.getContentResolver(),
-                    Settings.Global.PREFERRED_NETWORK_MODE + mSubId,
-                    settingsMode);
-            updatePreferenceValueAndSummary((ListPreference) preference, settingsMode);
-            return true;
+        // UNISOC: Network type settings for global market
+        if("true".equals(SystemProperties.get("persist.vendor.radio.engtest.enable","false"))) {
+            Toast.makeText(mContext, R.string.network_mode_setting_prompt, Toast.LENGTH_SHORT).show();
+        } else {
+            final int settingsMode = Integer.parseInt((String) object);
+            /*
+            if (mTelephonyManager.setPreferredNetworkType(mSubId, settingsMode)) {
+                Settings.Global.putInt(mContext.getContentResolver(),
+                        Settings.Global.PREFERRED_NETWORK_MODE + mSubId,
+                        settingsMode);
+                updatePreferenceValueAndSummary((ListPreference) preference, settingsMode);
+                return true;
+            }
+            */
+            // UNISOC: Add for Bug1176994
+            final ListPreference listPreference = (ListPreference)preference;
+            listPreference.setEnabled(false);
+            ThreadUtils.postOnBackgroundThread(() -> {
+                Log.d(TAG, "set preferred network type in backgroud: " + settingsMode);
+                boolean isSucceed = mTelephonyManager.setPreferredNetworkType(mSubId, settingsMode);
+                mUiHandler.post(() -> {
+                    listPreference.setEnabled(true);
+                    if (isSucceed) {
+                        Settings.Global.putInt(mContext.getContentResolver(),
+                                Settings.Global.PREFERRED_NETWORK_MODE + mSubId,
+                                settingsMode);
+                        updatePreferenceValueAndSummary(listPreference, settingsMode);
+                    }
+                });
+            });
         }
 
-        return false;
+        return true;
     }
 
     public void init(int subId) {
         mSubId = subId;
         final PersistableBundle carrierConfig = mCarrierConfigManager.getConfigForSubId(mSubId);
         mTelephonyManager = TelephonyManager.from(mContext).createForSubscriptionId(mSubId);
+
+        // UNISOC:Modify for Bug1450229
+        int phoneId = SubscriptionManager.getPhoneId(mSubId);
+        int simState = SubscriptionManager.getSimStateForSlotIndex(phoneId);
+        Log.d(TAG, "init, get simState for dataPhoneId: " + simState);
+        mSimLoaded = (simState == SIM_STATE_LOADED);
+
+        final boolean isLteOnCdma =
+                mTelephonyManager.getLteOnCdmaMode() == PhoneConstants.LTE_ON_CDMA_TRUE;
+        mIsGlobalCdma = isLteOnCdma
+                && carrierConfig.getBoolean(CarrierConfigManager.KEY_SHOW_CDMA_CHOICES_BOOL);
+        mShow4GForLTE = carrierConfig != null
+                ? carrierConfig.getBoolean(
+                CarrierConfigManager.KEY_SHOW_4G_FOR_LTE_DATA_ICON_BOOL)
+                : false;
+    }
+
+    public void init(Lifecycle lifecycle,int subId) {
+        lifecycle.addObserver(this);
+        mSubId = subId;
+        final PersistableBundle carrierConfig = mCarrierConfigManager.getConfigForSubId(mSubId);
+        mTelephonyManager = TelephonyManager.from(mContext).createForSubscriptionId(mSubId);
+
+        // UNISOC:Modify for Bug1450229
+        int phoneId = SubscriptionManager.getPhoneId(mSubId);
+        int simState = SubscriptionManager.getSimStateForSlotIndex(phoneId);
+        Log.d(TAG, "init lifecycle, get simState for dataPhoneId: " + simState);
+        mSimLoaded = (simState == SIM_STATE_LOADED);
 
         final boolean isLteOnCdma =
                 mTelephonyManager.getLteOnCdmaMode() == PhoneConstants.LTE_ON_CDMA_TRUE;
@@ -137,6 +299,8 @@ public class EnabledNetworkModePreferenceController extends
                     mContext.getContentResolver(),
                     android.provider.Settings.Global.PREFERRED_NETWORK_MODE + mSubId,
                     Phone.PREFERRED_NT_MODE);
+            Log.d(TAG, "updatePreferenceEntries phoneType is " + phoneType
+                  + ", settingsNetworkMode is " + settingsNetworkMode);
             if (isLteOnCdma) {
                 if (lteForced == 0) {
                     preference.setEntries(
@@ -214,10 +378,59 @@ public class EnabledNetworkModePreferenceController extends
             preference.setEntryValues(
                     R.array.preferred_network_mode_values_world_mode);
         }
+
+        /** UNISOC:Add for network mode  @{ */
+        boolean isShow4gOnly = MobileNetworkUtils.isShow4gOnly(mContext, mSubId);
+        boolean isShow3gOnly = MobileNetworkUtils.isShow3gOnly(mContext, mSubId);
+        Log.d(TAG, " updatePreferenceEntries isShow4gOnly : " + isShow4gOnly +
+                " isShow3gOnly : " + isShow3gOnly);
+        if (MobileNetworkUtils.isSupportNR(mContext, mSubId)) {
+            if (isShow4gOnly && isShow3gOnly) {
+                preference.setEntries(R.array.enabled_5g_NR_networks_choices_for_lteonly_wonly);
+                preference.setEntryValues(R.array.enabled_5g_NR_networks_values_for_lteonly_wonly);
+            } else if (isShow4gOnly) {
+                preference.setEntries(R.array.enabled_5g_NR_networks_choices_for_lteonly);
+                preference.setEntryValues(R.array.enabled_5g_NR_networks_values_for_lteonly);
+            } else if (isShow3gOnly) {
+                preference.setEntries(R.array.enabled_5g_NR_networks_choices_for_wonly);
+                preference.setEntryValues(R.array.enabled_5g_NR_networks_values_for_wonly);
+            } else {
+                preference.setEntries(R.array.enabled_5g_NR_networks_choices);
+                preference.setEntryValues(R.array.enabled_5g_NR_networks_values);
+            }
+        } else if (MobileNetworkUtils.isSupportLTE(mContext, mSubId)) {
+            /* unisoc: add for bug1156494/1156496 @{ */
+            if (isShow4gOnly && isShow3gOnly) {
+                preference.setEntries(R.array.enabled_networks_choices_for_lteonly_wonly);
+                preference.setEntryValues(R.array.enabled_networks_values_for_lteonly_wonly);
+            } else if (isShow4gOnly) {
+                preference.setEntries(R.array.enabled_networks_choices_for_lteonly);
+                preference.setEntryValues(R.array.enabled_networks_values_for_lteonly);
+            } else if (isShow3gOnly) {
+                preference.setEntries(R.array.enabled_networks_choices_for_wonly);
+                preference.setEntryValues(R.array.enabled_networks_values_for_wonly);
+            } else {
+                preference.setEntries(R.array.enabled_networks_choices);
+                preference.setEntryValues(R.array.enabled_networks_values);
+            }
+            /* unisoc: add for bug1156494/1156496 @} */
+        } else if (MobileNetworkUtils.isSupportWCDMA(mContext, mSubId)) {
+            preference.setEntries(R.array.enabled_networks_except_lte_choices);
+            preference.setEntryValues(R.array.enabled_networks_except_lte_values);
+        }
+
+        Resources resource = SubscriptionManager.getResourcesForSubId(mContext, mSubId);
+        boolean carrierCustomize = resource.getBoolean(R.bool.config_carrier_customize_network);
+        if (carrierCustomize) {
+            preference.setEntries(R.array.carrier_customize_network_choices);
+            preference.setEntryValues(R.array.carrier_customize_network_values);
+        }
+        /** @} */
     }
 
     private void updatePreferenceValueAndSummary(ListPreference preference, int networkMode) {
         preference.setValue(Integer.toString(networkMode));
+        Log.d(TAG, "updatePreferenceValueAndSummary networkMode: " + networkMode);
         switch (networkMode) {
             case TelephonyManager.NETWORK_MODE_TDSCDMA_WCDMA:
             case TelephonyManager.NETWORK_MODE_TDSCDMA_GSM_WCDMA:
@@ -227,11 +440,15 @@ public class EnabledNetworkModePreferenceController extends
                 preference.setSummary(R.string.network_3G);
                 break;
             case TelephonyManager.NETWORK_MODE_WCDMA_ONLY:
+                preference.setValue(
+                        Integer.toString(TelephonyManager.NETWORK_MODE_WCDMA_ONLY));
+                preference.setSummary(R.string.network_3G_only);
+                break;
             case TelephonyManager.NETWORK_MODE_GSM_UMTS:
             case TelephonyManager.NETWORK_MODE_WCDMA_PREF:
                 if (!mIsGlobalCdma) {
                     preference.setValue(Integer.toString(TelephonyManager.NETWORK_MODE_WCDMA_PREF));
-                    preference.setSummary(R.string.network_3G);
+                    preference.setSummary(R.string.network_3G_auto);
                 } else {
                     preference.setValue(Integer.toString(TelephonyManager
                             .NETWORK_MODE_LTE_CDMA_EVDO_GSM_WCDMA));
@@ -242,7 +459,7 @@ public class EnabledNetworkModePreferenceController extends
                 if (!mIsGlobalCdma) {
                     preference.setValue(
                             Integer.toString(TelephonyManager.NETWORK_MODE_GSM_ONLY));
-                    preference.setSummary(R.string.network_2G);
+                    preference.setSummary(R.string.network_2G_only);
                 } else {
                     preference.setValue(
                             Integer.toString(TelephonyManager
@@ -255,8 +472,17 @@ public class EnabledNetworkModePreferenceController extends
                     preference.setSummary(
                             R.string.preferred_network_mode_lte_gsm_umts_summary);
                     break;
+                } else {
+                    preference.setValue(
+                            Integer.toString(TelephonyManager.NETWORK_MODE_LTE_GSM_WCDMA));
+                    preference.setSummary(R.string.network_4g_auto);
+                    break;
                 }
             case TelephonyManager.NETWORK_MODE_LTE_ONLY:
+                preference.setValue(
+                        Integer.toString(TelephonyManager.NETWORK_MODE_LTE_ONLY));
+                preference.setSummary(R.string.network_4G_only);
+                break;
             case TelephonyManager.NETWORK_MODE_LTE_WCDMA:
                 if (!mIsGlobalCdma) {
                     preference.setValue(
@@ -327,9 +553,134 @@ public class EnabledNetworkModePreferenceController extends
                     }
                 }
                 break;
+            case RILConstants.NETWORK_MODE_NR_LTE_GSM_WCDMA:
+                preference.setValue(Integer.toString(RILConstants.NETWORK_MODE_NR_LTE_GSM_WCDMA));
+                preference.setSummary(R.string.network_5G);
+                break;
+            case RILConstants.NETWORK_MODE_NR_ONLY:
+                preference.setValue(Integer.toString(RILConstants.NETWORK_MODE_NR_ONLY));
+                preference.setSummary(R.string.network_5G_only);
+                break;
             default:
                 preference.setSummary(
                         mContext.getString(R.string.mobile_network_mode_error, networkMode));
         }
+    }
+
+    @Override
+    public void displayPreference(PreferenceScreen screen) {
+        super.displayPreference(screen);
+        mPreferenceScreen = screen;
+        mNetworkModePreference = screen.findPreference(getPreferenceKey());
+    }
+
+    @Override
+    public void onAirplaneModeChanged(boolean isAirplaneModeOn) {
+        Log.d(TAG,"onAirplaneModeChanged isAirplaneModeOn="+isAirplaneModeOn);
+        updateState(mNetworkModePreference);
+    }
+
+    /* unisoc: add for bug1450229 @{ */
+    @Override
+    public void onSimLoaded(int subId) {
+        if (subId == mSubId) {
+            mSimLoaded = true;
+            updateState(mNetworkModePreference);
+        }
+    }
+    /* unisoc: add for bug1450229 @} */
+
+    @Override
+    public void onSubscriptionsChanged() {
+        Log.d(TAG,"onSubscriptionsChanged");
+        if (SubscriptionManager.isValidSubscriptionId(mSubId)) {
+            updateState(mNetworkModePreference);
+        }
+    }
+
+    @Override
+    public void onPhoneStateChanged() {
+        Log.d(TAG,"onPhoneStateChanged");
+        updateState(mNetworkModePreference);
+    }
+
+    @Override
+    public void onCarrierConfigChanged(int phoneId) {}
+
+    private boolean isPhoneInCall() {
+        List<SubscriptionInfo> activeSubIdList = SubscriptionManager.from(mContext).getActiveSubscriptionInfoList();
+        if (activeSubIdList != null) {
+            for (SubscriptionInfo subInfo : activeSubIdList) {
+                if (mTelephonyManager.getCallState(subInfo.getSubscriptionId()) != TelephonyManager.CALL_STATE_IDLE) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Special operator requirements like CMCC: Don't show network type option
+     * for non-data card anyway USIM.
+     */
+    private boolean removeRestrictNetworkType(int phoneId) {
+        return 1 == Settings.Global.getInt(mContext.getContentResolver(),
+                    SettingsEx.GlobalEx.RESTRICT_NETWORK_TYPE + phoneId,0);
+    }
+
+    /**
+     * Special operator requirements like CMCC: Don't show network type option
+     * for non-USIM card anyway.
+     */
+    private boolean isNetworkOptionNotAllowedForNonUSIMCard() {
+        if (mContext != null) {
+            return  mContext.getResources().getBoolean(R.bool.config_network_option_not_allowed_for_non_USIM_card);
+        }
+        return false;
+    }
+
+    /**
+     * As default, network type option should be shown for slot supported
+     * multi-mode no matter whether it is primary card. Such as L+W devices. But
+     * not now!
+     */
+    private boolean isNetworkOptionAllowedForNonPrimaryCard() {
+        if (mContext != null) {
+            return  mContext.getResources().getBoolean(R.bool.config_network_option_not_allowed_for_non_primary_card);
+        }
+        return true;
+    }
+
+    private boolean isAllowedToShowNetworkTypeOption(int subId) {
+        final TelephonyManager tm = TelephonyManager.from(mContext).createForSubscriptionId(subId);
+        TelephonyManagerEx tmEx = TelephonyManagerEx.from(mContext);
+        int phoneId = SubscriptionManager.getPhoneId(subId);
+        if (!SubscriptionManager.isValidPhoneId(phoneId)) {
+            return false;
+        }
+
+        if (isNetworkOptionNotAllowedForNonUSIMCard() && !tmEx.isUsimCard(phoneId)) {
+            Log.d(TAG, "Not allowed to show network type option for non-USIM card.");
+            return false;
+        }
+
+        if (removeRestrictNetworkType(phoneId)) {
+            Log.d(TAG,"remove restrict network type");
+            return false;
+        }
+
+        boolean simlockRestrictNetworktypeGsm = Resources.getSystem().getBoolean(
+               com.android.internal.R.bool.simlock_restrict_networktype_2G);
+        if (simlockRestrictNetworktypeGsm) {
+            Log.d(TAG, "simlock_restrict_networktype_2G");
+            if (!tmEx.isWhiteListCard(phoneId)) {
+                return false;
+            }
+        }
+
+        boolean isPrimaryCard = tm.getSupportedRadioAccessFamily() == tmEx.getMaxRafSupported();
+        Log.d(TAG,"tm.getSupportedRadioAccessFamily() ="+tm.getSupportedRadioAccessFamily());
+        return isPrimaryCard
+                || (!isNetworkOptionAllowedForNonPrimaryCard() && !MobileNetworkUtils.isSupportGSM(mContext,subId));
     }
 }

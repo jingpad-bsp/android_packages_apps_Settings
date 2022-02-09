@@ -1814,7 +1814,11 @@
     <string name="lockpattern_settings_choose_lock_pattern" msgid="1652352830005653447">"Iestatīt atbloķēšanas kombināciju"</string>
     <string name="lockpattern_settings_change_lock_pattern" msgid="1123908306116495545">"Atbloķēšanas kombinācijas maiņa"</string>
     <string name="lockpattern_settings_help_how_to_record" msgid="2614673439060830433">"Kā zīmēt atbloķēšanas kombināciju"</string>
-    <string name="lockpattern_too_many_failed_confirmation_attempts" msgid="6909161623701848863">"Pārāk daudz neveiksmīgu mēģinājumu. Mēģiniet vēlreiz pēc <xliff:g id="NUMBER">%d</xliff:g> sekundēm."</string>
+    <plurals name="lockpattern_too_many_failed_confirmation_attempts" formatted="false" msgid="6909161623701848863">
+        <item quantity="zero">Pārāk daudz neveiksmīgu mēģinājumu. Mēģiniet vēlreiz pēc <xliff:g id="NUMBER">%d</xliff:g> sekundēm.</item>
+        <item quantity="one">Pārāk daudz neveiksmīgu mēģinājumu. Mēģiniet vēlreiz pēc <xliff:g id="NUMBER">%d</xliff:g> sekundes.</item>
+        <item quantity="other">Pārāk daudz neveiksmīgu mēģinājumu. Mēģiniet vēlreiz pēc <xliff:g id="NUMBER">%d</xliff:g> sekundēm.</item>
+    </plurals>
     <string name="activity_not_found" msgid="5551664692991605325">"Lietojumprogramma jūsu tālrunī nav instalēta."</string>
     <string name="lock_settings_profile_title" msgid="2121876391814535295">"Darba profila drošība"</string>
     <string name="lock_settings_profile_screen_lock_title" msgid="3334747927367115256">"Darba profila ekrāna bloķēšanas režīms"</string>
@@ -4706,4 +4710,21 @@
     <string name="dual_cdma_sim_warning_notification_channel_title" msgid="4144088600737896010">"SIM kombinācija"</string>
     <string name="work_policy_privacy_settings" msgid="2348992644755730215">"Jūsu darba politikas informācija"</string>
     <string name="work_policy_privacy_settings_summary" msgid="2236899807429121767">"Iestatījumus pārvalda jūsu IT administrators"</string>
+        <string name="bluetooth_message_access_notification_content" msgid="5111712860712823893">"Kāda ierīce pieprasa atļauju piekļūt jūsu ziņojumiem. Pieskarieties, lai skatītu detalizētu informāciju."</string>
+   <string name="bluetooth_message_access_dialog_title" msgid="9009836130395061579">"Vai atļaujat piekļūt ziņojumiem?"</string>
+   <string name="bluetooth_message_access_dialog_content" msgid="7186694737578788487">"Bluetooth ierīce “<xliff:g id="DEVICE_NAME_0">%1$s</xliff:g>” pieprasa atļauju piekļūt jūsu ziņojumiem.\n\nJūs iepriekš neesat izveidojis savienojumu ar ierīci “<xliff:g id="DEVICE_NAME_1">%2$s</xliff:g>”."</string>
+   <string name="bluetooth_phonebook_access_notification_content" msgid="9175220052703433637">"Kāda ierīce pieprasa atļauju piekļūt jūsu kontaktpersonu datiem un zvanu žurnālam. Pieskarieties, lai skatītu detalizētu informāciju."</string>
+    <string name="bluetooth_phonebook_access_dialog_title" msgid="7624607995928968721">"Vai atļaujat piekļūt kontaktpersonu datiem un zvanu žurnālam?"</string>
+    <string name="bluetooth_phonebook_access_dialog_content" msgid="959658135522249170">"Bluetooth ierīce “<xliff:g id="DEVICE_NAME_0">%1$s</xliff:g>” pieprasa atļauju piekļūt jūsu kontaktpersonu datiem un zvanu žurnālam. Tas attiecas arī uz datiem par ienākošajiem un izejošajiem zvaniem.\n\nJūs iepriekš neesat izveidojis savienojumu ar ierīci “<xliff:g id="DEVICE_NAME_1">%2$s</xliff:g>”."</string>
+    <string name="request_manage_bluetooth_permission_dont_allow" msgid="8798061333407581300">"Neatļaut"</string>
+    <string name="bluetooth_sim_card_access_notification_title" msgid="5217037846900908318">"SIM kartes piekļuves pieprasījums"</string>
+    <string name="bluetooth_sim_card_access_notification_content" msgid="6759306429895300286">"Kāda ierīce pieprasa piekļuvi jūsu SIM kartei. Pieskarieties, lai skatītu detalizētu informāciju."</string>
+    <string name="bluetooth_sim_card_access_dialog_title" msgid="4486768729352090174">"Vai atļaut piekļuvi SIM kartei?"</string>
+    <string name="bluetooth_sim_card_access_dialog_content" msgid="4153857191661567190">"Bluetooth ierīce “<xliff:g id="DEVICE_NAME_0">%1$s</xliff:g>” pieprasa atļauju piekļūt jūsu SIM kartē saglabātajiem datiem, tostarp kontaktpersonām.\n\nKamēr savienojums būs aktīvs, visi zvani uz numuru <xliff:g id="PHONE_NUMBER">%3$s</xliff:g> tiks saņemti ierīcē <xliff:g id="DEVICE_NAME_1">%2$s</xliff:g>."</string>
+    <string name="bluetooth_connect_access_notification_title" msgid="2573547043170883947">"Ir pieejama Bluetooth ierīce"</string>
+    <string name="bluetooth_connect_access_notification_content" msgid="1328465545685433304">"Ierīce pieprasa atļauju izveidot savienojumu. Pieskarieties, lai skatītu detalizētu informāciju."</string>
+    <string name="bluetooth_connect_access_dialog_title" msgid="1948056782712451381">"Vai izveidot savienojumu ar Bluetooth ierīci?"</string>
+    <string name="bluetooth_connect_access_dialog_content" msgid="4336436466468405850">"Ierīce “<xliff:g id="DEVICE_NAME_0">%1$s</xliff:g>” pieprasa atļauju izveidot savienojumu ar šo tālruni.\n\nIepriekš neesat veidojis savienojumu ar ierīci <xliff:g id="DEVICE_NAME_1">%2$s</xliff:g>."</string>
+    <string name="bluetooth_connect_access_dialog_negative" msgid="4944672755226375059">"Neizveidot savienojumu"</string>
+    <string name="bluetooth_connect_access_dialog_positive" msgid="3630561675207269710">"Izveidot savienojumu"</string>
 </resources>

@@ -26,6 +26,7 @@ import android.content.Intent;
 import android.content.IntentSender;
 import android.os.Bundle;
 import android.os.UserManager;
+import android.util.Log;
 
 import androidx.annotation.VisibleForTesting;
 import androidx.fragment.app.Fragment;
@@ -376,11 +377,17 @@ public final class ChooseLockSettingsHelper {
             case DevicePolicyManager.PASSWORD_QUALITY_SOMETHING:
                 launched = launchConfirmationActivity(request, title, header, description,
                         returnCredentials || hasChallenge
-                                ? ConfirmLockPattern.InternalActivity.class
-                                : ConfirmLockPattern.class, returnCredentials, external,
+                                ? JingConfirmLockPattern.InternalActivity.class
+                                : JingConfirmLockPattern.class, returnCredentials, external,
                                 hasChallenge, challenge, userId, alternateButton, extras);
                 break;
             case DevicePolicyManager.PASSWORD_QUALITY_NUMERIC:
+                launched = launchConfirmationActivity(request, title, header, description,
+                        returnCredentials || hasChallenge
+                                ? JingSimpleConfirmLockPassword.InternalActivity.class
+                                : JingSimpleConfirmLockPassword.class, returnCredentials, external,
+                        hasChallenge, challenge, userId, alternateButton, extras);
+                break;
             case DevicePolicyManager.PASSWORD_QUALITY_NUMERIC_COMPLEX:
             case DevicePolicyManager.PASSWORD_QUALITY_ALPHABETIC:
             case DevicePolicyManager.PASSWORD_QUALITY_ALPHANUMERIC:
@@ -388,8 +395,8 @@ public final class ChooseLockSettingsHelper {
             case DevicePolicyManager.PASSWORD_QUALITY_MANAGED:
                 launched = launchConfirmationActivity(request, title, header, description,
                         returnCredentials || hasChallenge
-                                ? ConfirmLockPassword.InternalActivity.class
-                                : ConfirmLockPassword.class, returnCredentials, external,
+                                ? JingComplexConfirmLockPassword.InternalActivity.class
+                                : JingComplexConfirmLockPassword.class, returnCredentials, external,
                                 hasChallenge, challenge, userId, alternateButton, extras);
                 break;
         }

@@ -258,7 +258,8 @@ public abstract class StorageWizardBase extends FragmentActivity {
             if (--attempts > 0) {
                 Log.w(TAG, "Missing mounted volume of type " + type + " hosted by disk "
                         + mDisk.getId() + "; trying again");
-                SystemClock.sleep(250);
+                //Add for bug 1387600:Increase the waiting time for SD formatting.
+                SystemClock.sleep(600);
             } else {
                 return null;
             }

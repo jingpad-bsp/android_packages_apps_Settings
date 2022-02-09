@@ -46,6 +46,7 @@ import com.android.settings.password.ConfirmDeviceCredentialActivity;
 import com.android.settings.widget.ToggleSwitch;
 import com.android.settings.widget.ToggleSwitch.OnBeforeCheckedChangeListener;
 import com.android.settingslib.accessibility.AccessibilityUtils;
+import com.sprd.settings.navigation.NavigationBarSettings;
 
 import java.util.List;
 
@@ -105,8 +106,11 @@ public class ToggleAccessibilityServicePreferenceFragment
 
     @Override
     public void onPreferenceToggled(String preferenceKey, boolean enabled) {
-        ComponentName toggledService = ComponentName.unflattenFromString(preferenceKey);
-        AccessibilityUtils.setAccessibilityServiceState(getActivity(), toggledService, enabled);
+        Activity activity = getActivity();
+        if (activity != null) {
+            ComponentName toggledService = ComponentName.unflattenFromString(preferenceKey);
+            AccessibilityUtils.setAccessibilityServiceState(activity, toggledService, enabled);
+        }
     }
 
     // IMPORTANT: Refresh the info since there are dynamically changing
@@ -130,32 +134,36 @@ public class ToggleAccessibilityServicePreferenceFragment
 
     @Override
     public Dialog onCreateDialog(int dialogId) {
+        Activity activity = getActivity();
         switch (dialogId) {
             case DIALOG_ID_ENABLE_WARNING: {
                 final AccessibilityServiceInfo info = getAccessibilityServiceInfo();
-                if (info == null) {
+                if (info == null || activity == null) {
                     return null;
                 }
                 mDialog = AccessibilityServiceWarning
-                        .createCapabilitiesDialog(getActivity(), info, this);
+                        .createCapabilitiesDialog(activity, info, this);
                 break;
             }
             case DIALOG_ID_DISABLE_WARNING: {
                 AccessibilityServiceInfo info = getAccessibilityServiceInfo();
-                if (info == null) {
+                if (info == null || activity == null) {
                     return null;
                 }
                 mDialog = AccessibilityServiceWarning
-                        .createDisableDialog(getActivity(), info, this);
+                        .createDisableDialog(activity, info, this);
                 break;
             }
             case DIALOG_ID_LAUNCH_ACCESSIBILITY_TUTORIAL: {
+                if (activity == null) {
+                    return null;
+                }
                 if (isGestureNavigateEnabled()) {
                     mDialog = AccessibilityGestureNavigationTutorial
-                            .showGestureNavigationTutorialDialog(getActivity());
+                            .showGestureNavigationTutorialDialog(activity);
                 } else {
                     mDialog = AccessibilityGestureNavigationTutorial
-                            .showAccessibilityButtonTutorialDialog(getActivity());
+                            .showAccessibilityButtonTutorialDialog(activity);
                 }
                 break;
             }
@@ -176,9 +184,14 @@ public class ToggleAccessibilityServicePreferenceFragment
     }
 
     private void updateSwitchBarToggleSwitch() {
-        final boolean checked = AccessibilityUtils.getEnabledServicesFromSettings(getActivity())
-                .contains(mComponentName);
-        mSwitchBar.setCheckedInternal(checked);
+        /* UNISOC:1195292 check the state of activity @{ */
+        Activity activity = getActivity();
+        if (activity != null) {
+            final boolean checked = AccessibilityUtils.getEnabledServicesFromSettings(activity)
+                    .contains(mComponentName);
+            mSwitchBar.setCheckedInternal(checked);
+        }
+        /* @ */
     }
 
     /**
@@ -237,7 +250,8 @@ public class ToggleAccessibilityServicePreferenceFragment
     }
 
     private boolean isGestureNavigateEnabled() {
-        return getContext().getResources().getInteger(
+        /*UNISOC: Modify for bug 1111853*/
+        return NavigationBarSettings.hasNavigationBar(getContext()) && getContext().getResources().getInteger(
                 com.android.internal.R.integer.config_navBarInteractionMode)
                 == NAV_BAR_MODE_GESTURAL;
     }

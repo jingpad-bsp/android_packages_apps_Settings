@@ -18,6 +18,8 @@ package com.android.settings.biometrics.face;
 
 import android.app.settings.SettingsEnums;
 import android.content.Context;
+import android.graphics.Matrix;
+import android.graphics.RectF;
 import android.graphics.SurfaceTexture;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCaptureSession;
@@ -29,9 +31,11 @@ import android.hardware.camera2.params.StreamConfigurationMap;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.SystemProperties;
 import android.util.Log;
 import android.util.Size;
 import android.util.TypedValue;
+import android.view.Display;
 import android.view.Surface;
 import android.view.TextureView;
 import android.view.View;
@@ -64,6 +68,11 @@ public class FaceEnrollPreviewFragment extends InstrumentedPreferenceFragment
     private CaptureRequest mPreviewRequest;
     private Size mPreviewSize;
     private ParticleCollection.Listener mListener;
+    private static final boolean USING_UNISOC_FACEID = true;
+    private static final String FACEID_VER_PROP = "persist.sys.cam.faceid.version";
+    private static final int WIDTH = 3 == SystemProperties.getInt(FACEID_VER_PROP, 1) ? 1440 : 960;
+    private static final int HEIGHT = 3 == SystemProperties.getInt(FACEID_VER_PROP, 1) ? 1080 : 720;
+    private FaceEnrollEnrolling.StartedListener mStartedListener;
 
     // View used to contain the circular cutout and enrollment animation drawable
     private ImageView mCircleView;
@@ -89,7 +98,13 @@ public class FaceEnrollPreviewFragment extends InstrumentedPreferenceFragment
         @Override
         public void onSurfaceTextureAvailable(
                 SurfaceTexture surfaceTexture, int width, int height) {
-            openCamera(width, height);
+            Log.d(TAG, "onSurfaceTextureAvailable");
+            if (USING_UNISOC_FACEID) {
+                configureTransform(mTextureView.getWidth(), mTextureView.getHeight());
+                mStartedListener.onEnrollStarted();
+            } else {
+                openCamera(width, height);
+            }
         }
 
         @Override
@@ -101,6 +116,7 @@ public class FaceEnrollPreviewFragment extends InstrumentedPreferenceFragment
 
         @Override
         public boolean onSurfaceTextureDestroyed(SurfaceTexture surfaceTexture) {
+            Log.d(TAG, "onSurfaceTextureDestroyed");
             return true;
         }
 
@@ -178,6 +194,23 @@ public class FaceEnrollPreviewFragment extends InstrumentedPreferenceFragment
         }
     };
 
+    public Surface getPreviewSurface() {
+        Log.d(TAG, "startPreviewEnrollment begin");
+        try {
+            final SurfaceTexture texture = mTextureView.getSurfaceTexture();
+
+            // We configure the size of default buffer to be the size of camera preview we want.
+            texture.setDefaultBufferSize(WIDTH, HEIGHT);
+
+            // This is the output Surface we need to start preview.
+            final Surface surface = new Surface(texture);
+            return surface;
+        } catch (Exception e) {
+            Log.d(TAG, "startEnrollment Exception", e);
+        }
+        return null;
+    }
+
     @Override
     public int getMetricsCategory() {
         return SettingsEnums.FACE_ENROLL_PREVIEW;
@@ -207,7 +240,11 @@ public class FaceEnrollPreviewFragment extends InstrumentedPreferenceFragment
         // a camera and start preview from here (otherwise, we wait until the surface is ready in
         // the SurfaceTextureListener).
         if (mTextureView.isAvailable()) {
-            openCamera(mTextureView.getWidth(), mTextureView.getHeight());
+            if (USING_UNISOC_FACEID) {
+                mStartedListener.onEnrollStarted();
+            } else {
+                openCamera(mTextureView.getWidth(), mTextureView.getHeight());
+            }
         } else {
             mTextureView.setSurfaceTextureListener(mSurfaceTextureListener);
         }
@@ -232,10 +269,17 @@ public class FaceEnrollPreviewFragment extends InstrumentedPreferenceFragment
     @Override
     public void onEnrollmentProgressChange(int steps, int remaining) {
         mAnimationDrawable.onEnrollmentProgressChange(steps, remaining);
+        if (mTextureView != null) {
+            setCameraRotation(mTextureView.getWidth(),mTextureView.getHeight());
+        }
     }
 
     public void setListener(ParticleCollection.Listener listener) {
         mListener = listener;
+    }
+
+    public void setStartedListener(FaceEnrollEnrolling.StartedListener listener) {
+        mStartedListener = listener;
     }
 
     /**
@@ -308,8 +352,8 @@ public class FaceEnrollPreviewFragment extends InstrumentedPreferenceFragment
         }
 
         // Fix the aspect ratio
-        float scaleX = (float) viewWidth / mPreviewSize.getWidth();
-        float scaleY = (float) viewHeight / mPreviewSize.getHeight();
+        float scaleX = (float) viewWidth / (USING_UNISOC_FACEID ? WIDTH : mPreviewSize.getWidth());
+        float scaleY = (float) viewHeight / (USING_UNISOC_FACEID ? HEIGHT : mPreviewSize.getHeight());
 
         // Now divide by smaller one so it fills up the original space.
         float smaller = Math.min(scaleX, scaleY);
@@ -324,6 +368,35 @@ public class FaceEnrollPreviewFragment extends InstrumentedPreferenceFragment
         getResources().getValue(R.dimen.face_preview_scale, scale, true /* resolveRefs */);
         mTextureView.setScaleX(scaleX * scale.getFloat());
         mTextureView.setScaleY(scaleY * scale.getFloat());
+
+        setCameraRotation(viewWidth, viewHeight);
+    }
+
+    private int mDeviceRotation = 0;
+
+    private void setCameraRotation(int viewWidth, int viewHeight) {
+        int rotation = getPrefContext().getDisplay().getOrientation();
+        if (mDeviceRotation != rotation) {
+            Log.d(TAG, "setCameraRotation rotation =" + rotation);
+            mDeviceRotation = rotation;
+            Matrix matrix = new Matrix();
+            RectF viewRect = new RectF(0, 0, viewWidth, viewHeight);
+            RectF bufferRect = new RectF(0, 0, HEIGHT, WIDTH);
+            float centerX = viewRect.centerX();
+            float centerY = viewRect.centerY();
+            if (Surface.ROTATION_90 == rotation || Surface.ROTATION_270 == rotation) {
+                bufferRect.offset(centerX - bufferRect.centerX(), centerY - bufferRect.centerY());
+                matrix.setRectToRect(viewRect, bufferRect, Matrix.ScaleToFit.FILL);
+                float scaled = Math.max(
+                        (float) viewHeight / HEIGHT,
+                        (float) viewWidth / WIDTH);
+                matrix.postScale(scaled, scaled, centerX, centerY);
+                matrix.postRotate(90 * (rotation - 2), centerX, centerY);
+            } else if (Surface.ROTATION_180 == rotation) {
+                matrix.postRotate(180, centerX, centerY);
+            }
+            mTextureView.setTransform(matrix);
+        }
     }
 
     private void closeCamera() {

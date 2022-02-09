@@ -39,6 +39,12 @@
         settings:widgetLayout="@null"
         settings:searchable="false" />
 
+    <!-- UNISOC: Add for Color Temperature Adjusting -->
+    <Preference
+        android:key="colors_contrast"
+        android:title="@string/colors_contrast_title">
+    </Preference>
+
     <Preference
         android:key="auto_brightness_entry"
         android:title="@string/auto_brightness_title"
@@ -118,11 +124,10 @@
         android:fragment="com.android.settings.dream.DreamSettings"
         settings:searchable="false" />
 
-    <com.android.settingslib.RestrictedPreference
+    <Preference
         android:key="lockscreen_from_display_settings"
         android:title="@string/lockscreen_settings_title"
         android:fragment="com.android.settings.security.LockscreenDashboardFragment"
-        settings:controller="com.android.settings.security.screenlock.LockScreenPreferenceController"
         settings:userRestriction="no_ambient_display" />
 
     <SwitchPreference
@@ -147,6 +152,13 @@
     <Preference
         android:key="vr_display_pref"
         android:title="@string/display_vr_pref_title"
-        android:fragment="com.android.settings.display.VrDisplayPreferencePicker" />
+            android:fragment="com.android.settings.display.VrDisplayPreferencePicker" />
+
+    <!-- UNISOC: add for backlight saving power @{ -->
+    <SwitchPreference
+        android:key="backlight_saving_power"
+        android:title="@string/backlight_saving_power"
+        settings:controller="com.android.settings.display.BacklightSavingPowerPreferenceController" />
+    <!-- @} -->
 
 </PreferenceScreen>

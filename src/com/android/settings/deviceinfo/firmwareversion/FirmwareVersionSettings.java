@@ -57,7 +57,7 @@ public class FirmwareVersionSettings extends DashboardFragment {
                     final SearchIndexableResource sir = new SearchIndexableResource(context);
                     sir.xmlResId = R.xml.firmware_version;
                     result.add(sir);
-                    return result;
+                    return null;
                 }
 
             };

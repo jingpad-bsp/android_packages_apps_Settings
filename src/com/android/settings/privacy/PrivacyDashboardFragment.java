@@ -105,6 +105,7 @@ public class PrivacyDashboardFragment extends DashboardFragment {
 
     private static List<AbstractPreferenceController> buildPreferenceControllers(
             Context context, Lifecycle lifecycle) {
+        /*** 
         final List<AbstractPreferenceController> controllers = new ArrayList<>();
         final LockScreenNotificationPreferenceController notificationController =
                 new LockScreenNotificationPreferenceController(context,
@@ -117,7 +118,9 @@ public class PrivacyDashboardFragment extends DashboardFragment {
         controllers.add(notificationController);
 
         return controllers;
+        ***/
 
+        return null;
     }
 
     public static final SearchIndexProvider SEARCH_INDEX_DATA_PROVIDER =

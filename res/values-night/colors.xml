@@ -27,5 +27,12 @@
     <color name="notification_importance_selection_bg">@*android:color/material_grey_800</color>
     <color name="notification_importance_button_selected">#AECBFA</color> <!-- material blue 200 -->
     <color name="notification_importance_button_unselected">#5F6368</color>
+
+    <!--jingos add -->
+    <color name="jingos_passwd_error">#E95B4E</color>
+    <color name="jingos_passwd_next_blue">#3C4BE8</color>
+    <color name="jingos_passwd_clear_de">#4dffffff</color>
+    <color name="jingos_simple_passwd_number">#ffffff</color>
+    <color name="jingos_passwd_summary">#4Dffffff</color>
 </resources>
 

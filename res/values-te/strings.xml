@@ -1793,7 +1793,10 @@
     <string name="lockpattern_settings_choose_lock_pattern" msgid="1652352830005653447">"అన్‌లాక్ నమూనాను సెట్ చేయి"</string>
     <string name="lockpattern_settings_change_lock_pattern" msgid="1123908306116495545">"అన్‌లాక్ నమూనాను మార్చు"</string>
     <string name="lockpattern_settings_help_how_to_record" msgid="2614673439060830433">"అన్‌లాక్ నమూనాను ఎలా గీయాలి"</string>
-    <string name="lockpattern_too_many_failed_confirmation_attempts" msgid="6909161623701848863">"చాలా ఎక్కువ తప్పు ప్రయత్నాలు చేసారు. <xliff:g id="NUMBER">%d</xliff:g> సెకన్లలో మళ్లీ ప్రయత్నించండి."</string>
+    <plurals name="lockpattern_too_many_failed_confirmation_attempts" formatted="false" msgid="6909161623701848863">
+        <item quantity="other">చాలా ఎక్కువ తప్పు ప్రయత్నాలు చేసారు. <xliff:g id="NUMBER">%d</xliff:g> సెకన్లలో మళ్లీ ప్రయత్నించండి.</item>
+        <item quantity="one">చాలా ఎక్కువ తప్పు ప్రయత్నాలు చేసారు. 1 సెకనులో మళ్లీ ప్రయత్నించండి.</item>
+    </plurals>
     <string name="activity_not_found" msgid="5551664692991605325">"మీ ఫోన్‌లో యాప్ ఇన్‌స్టాల్ చేయబడలేదు."</string>
     <string name="lock_settings_profile_title" msgid="2121876391814535295">"కార్యాలయ ప్రొఫైల్ భద్రత"</string>
     <string name="lock_settings_profile_screen_lock_title" msgid="3334747927367115256">"కార్యాలయ ప్రొఫైల్ స్క్రీన్ లాక్"</string>
@@ -3645,7 +3648,7 @@
     <string name="encryption_interstitial_message_pattern_for_fingerprint" msgid="932184823193006087">"మీ పరికరాన్ని అన్‌లాక్ చేయడానికి మీ వేలిముద్రను ఉపయోగించడంతో పాటు, దీనిని ప్రారంభించిన వెంటనే మీ నమూనాని అడిగే విధంగా సెట్ చేయడం ద్వారా మీరు దీనికి అదనపు రక్షణను అందించవచ్చు. పరికరాన్ని ప్రారంభించే వరకు, అది అలారాలతో సహా కాల్‌లు, సందేశాలు లేదా నోటిఫికేషన్‌లను స్వీకరించదు. \n\nకోల్పోయిన లేదా దొంగిలించబడిన పరికరాలలో ఉన్న డేటాని రక్షించడంలో ఇది సహాయపడుతుంది. మీ పరికరాన్ని ప్రారంభించడం కోసం నమూనాని అడగాలా?"</string>
     <string name="encryption_interstitial_message_password_for_fingerprint" msgid="5560954719370251702">"మీ పరికరాన్ని అన్‌లాక్ చేయడానికి మీ వేలిముద్రను ఉపయోగించడంతో పాటు, దీనిని ప్రారంభించిన వెంటనే మీ పాస్‌వర్డ్‌ని అడిగే విధంగా సెట్ చేయడం ద్వారా మీరు దీనికి అదనపు రక్షణను అందించవచ్చు. పరికరాన్ని ప్రారంభించే వరకు, అది అలారాలతో సహా కాల్‌లు, సందేశాలు లేదా నోటిఫికేషన్‌లను స్వీకరించదు. \n\nకోల్పోయిన లేదా దొంగిలించబడిన పరికరాలలో ఉన్న డేటాని రక్షించడంలో ఇది సహాయపడుతుంది. మీ పరికరాన్ని ప్రారంభించడం కోసం పాస్‌వర్డ్‌ని అడగాలా?"</string>
     <!-- unknown quoting pattern: original -1, translation 1 -->
-    <string name="encryption_interstitial_message_pin_for_face" msgid="2017438765366716760">"మీ పరికరాన్ని అన్‌లాక్ చేయడానికి మీ ముఖాన్ని ఉపయోగించడంతో పాటు, మీరు ఈ పరికరం ప్రారంభం కావడానికి ముందే మీ పిన్‌ను అడిగేలా చేసి దాన్ని మరింత కాపాడుకోవచ్చు. పరికరాన్ని ప్రారంభించే వరకు, అలారాలతో సహా ,కాల్‌లు, సందేశాలు లేదా నోటిఫికేషన్‌లను స్వీకరించదు.\n\nఇది కోల్పోయిన లేదా దొంగలించబడిన పరికరాల డేటాను రక్షించడంలో సహాయపడుతుంది. మీ పరికరాన్ని ప్రారంభించడానికి పిన్ అవసరమా?&amp;gt;"</string>
+    <string name="encryption_interstitial_message_pin_for_face" msgid="2017438765366716760">"మీ పరికరాన్ని అన్‌లాక్ చేయడానికి మీ ముఖాన్ని ఉపయోగించడంతో పాటు, మీరు ఈ పరికరం ప్రారంభం కావడానికి ముందే మీ పిన్‌ను అడిగేలా చేసి దాన్ని మరింత కాపాడుకోవచ్చు. పరికరాన్ని ప్రారంభించే వరకు, అలారాలతో సహా ,కాల్‌లు, సందేశాలు లేదా నోటిఫికేషన్‌లను స్వీకరించదు.\n\nఇది కోల్పోయిన లేదా దొంగలించబడిన పరికరాల డేటాను రక్షించడంలో సహాయపడుతుంది. మీ పరికరాన్ని ప్రారంభించడానికి పిన్ అవసరమా?"</string>
     <string name="encryption_interstitial_message_pattern_for_face" msgid="3551827507967661552">"మీ పరికరాన్ని అన్‌లాక్ చేయడానికి మీ ముఖాన్ని ఉపయోగించడంతో పాటు, మీరు ఈ పరికరం ప్రారంభం కావడానికి ముందే మీ నమూనాను అడిగేలా చేసి దాన్ని మరింత కాపాడుకోవచ్చు. పరికరాన్ని ప్రారంభించే వరకు, అలారాలతో సహా ,కాల్‌లు, సందేశాలు లేదా నోటిఫికేషన్‌లను స్వీకరించదు.\n\nఇది కోల్పోయిన లేదా దొంగలించబడిన పరికరాల డేటాను రక్షించడంలో సహాయపడుతుంది. మీ పరికరాన్ని ప్రారంభించడానికి నమూనా అవసరమా?"</string>
     <string name="encryption_interstitial_message_password_for_face" msgid="3452793542112093614">"మీ పరికరాన్ని అన్‌లాక్ చేయడానికి మీ ముఖాన్ని ఉపయోగించడంతో పాటు, మీరు ఈ పరికరం ప్రారంభం కావడానికి ముందే మీ పాస్‌వర్డ్‌ను అడిగేలా చేసి దాన్ని మరింత కాపాడుకోవచ్చు. పరికరాన్ని ప్రారంభించే వరకు, అలారాలతో సహా ,కాల్‌లు, సందేశాలు లేదా నోటిఫికేషన్‌లను స్వీకరించదు.\n\nఇది కోల్పోయిన లేదా దొంగలించబడిన పరికరాల డేటాను రక్షించడంలో సహాయపడుతుంది. మీ పరికరాన్ని ప్రారంభించడానికి పాస్‌వర్డ్‌ అవసరమా?"</string>
     <string name="encryption_interstitial_yes" msgid="4439509435889513411">"అవును"</string>
@@ -4623,4 +4626,21 @@
     <string name="dual_cdma_sim_warning_notification_channel_title" msgid="4144088600737896010">"SIM కాంబినేషన్"</string>
     <string name="work_policy_privacy_settings" msgid="2348992644755730215">"మీ కార్యాలయ విధానానికి సంబంధించిన సమాచారం"</string>
     <string name="work_policy_privacy_settings_summary" msgid="2236899807429121767">"మీ IT నిర్వాహకుల ద్వారా సెట్టింగ్‌లు నిర్వహించబడతాయి"</string>
+    <string name="bluetooth_message_access_notification_content" msgid="5111712860712823893">"పరికరం మీ మెసేజ్‌లను యాక్సెస్ చేయాలనుకుంటోంది. వివరాల కోసం ట్యాప్ చేయండి."</string>
+    <string name="bluetooth_message_access_dialog_title" msgid="9009836130395061579">"మెసేజ్‌లకు యాక్సెస్‌ను అనుమతించాలా?"</string>
+    <string name="bluetooth_message_access_dialog_content" msgid="7186694737578788487">"బ్లూటూత్ పరికరం, <xliff:g id="DEVICE_NAME_0">%1$s</xliff:g>, మీ మెసేజ్‌లను యాక్సెస్ చేయాలనుకుంటోంది.\n\nమీరు ఇంతకు ముందెన్నడూ <xliff:g id="DEVICE_NAME_1">%2$s</xliff:g>కు కనెక్ట్ కాలేదు."</string>
+    <string name="bluetooth_phonebook_access_notification_content" msgid="9175220052703433637">"పరికరం మీ కాంటాక్ట్‌లు, కాల్ లాగ్‌ను యాక్సెస్ చేయాలనుకుంటోంది. వివరాల కోసం ట్యాప్ చేయండి."</string>
+    <string name="bluetooth_phonebook_access_dialog_title" msgid="7624607995928968721">"కాంటాక్ట్‌లకు, కాల్ లాగ్‌కు యాక్సెస్‌ను అనుమతించాలా?"</string>
+    <string name="bluetooth_phonebook_access_dialog_content" msgid="959658135522249170">"బ్లూటూత్ పరికరం, <xliff:g id="DEVICE_NAME_0">%1$s</xliff:g>, మీ కాంటాక్ట్‌లు, కాల్ లాగ్‌ను యాక్సెస్ చేయాలనుకుంటోంది. ఇది ఇన్‌కమింగ్, అవుట్‌గోయింగ్ కాల్స్‌ల డేటాతో కూడి ఉంటుంది.\n\nమీరు ఇంతకు ముందెన్నడూ <xliff:g id="DEVICE_NAME_1">%2$s</xliff:g>కు కనెక్ట్ కాలేదు."</string>
+    <string name="request_manage_bluetooth_permission_dont_allow" msgid="8798061333407581300">"అనుమతించవద్దు"</string>
+    <string name="bluetooth_sim_card_access_notification_title" msgid="5217037846900908318">"SIM కార్డ్ యాక్సెస్ రిక్వెస్ట్"</string>
+    <string name="bluetooth_sim_card_access_notification_content" msgid="6759306429895300286">"పరికరం మీ SIM కార్డ్‌ను యాక్సెస్ చేయాలనుకుంటోంది. వివరాల కోసం ట్యాప్ చేయండి."</string>
+    <string name="bluetooth_sim_card_access_dialog_title" msgid="4486768729352090174">"SIM కార్డ్‌కు యాక్సెస్‌ను అనుమతించాలా?"</string>
+    <string name="bluetooth_sim_card_access_dialog_content" msgid="4153857191661567190">"బ్లూటూత్ పరికరం, <xliff:g id="DEVICE_NAME_0">%1$s</xliff:g>, మీ SIM కార్డ్‌లోని డేటాను యాక్సెస్ చేయాలనుకుంటోంది. దీనిలో మీ కాంటాక్ట్‌లు ఉంటాయి.\n\nకనెక్ట్ చేయబడినప్పుడు, <xliff:g id="DEVICE_NAME_1">%2$s</xliff:g> <xliff:g id="PHONE_NUMBER">%3$s</xliff:g>కు చేసిన అన్ని కాల్స్‌ను స్వీకరిస్తుంది."</string>
+    <string name="bluetooth_connect_access_notification_title" msgid="2573547043170883947">"బ్లూటూత్ పరికరం అందుబాటులో ఉంది"</string>
+    <string name="bluetooth_connect_access_notification_content" msgid="1328465545685433304">"పరికరం కనెక్ట్ చేయాలనుకుంటోంది. వివరాల కోసం ట్యాప్ చేయండి."</string>
+    <string name="bluetooth_connect_access_dialog_title" msgid="1948056782712451381">"బ్లూటూత్ పరికరానికి కనెక్ట్ చేయాలా?"</string>
+    <string name="bluetooth_connect_access_dialog_content" msgid="4336436466468405850">"<xliff:g id="DEVICE_NAME_0">%1$s</xliff:g> ఈ ఫోన్‌కు కనెక్ట్ కావాలనుకుంటోంది.\n\nమీరు ఇంతకు ముందెన్నడూ <xliff:g id="DEVICE_NAME_1">%2$s</xliff:g>‌కు కనెక్ట్ కాలేదు."</string>
+    <string name="bluetooth_connect_access_dialog_negative" msgid="4944672755226375059">"కనెక్ట్ చేయవద్దు"</string>
+    <string name="bluetooth_connect_access_dialog_positive" msgid="3630561675207269710">"కనెక్ట్ చేేయి"</string>
 </resources>

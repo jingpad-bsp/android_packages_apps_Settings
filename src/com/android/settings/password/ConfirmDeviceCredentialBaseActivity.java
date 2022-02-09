@@ -63,31 +63,35 @@ public abstract class ConfirmDeviceCredentialBaseActivity extends SettingsActivi
 
     private boolean isInternalActivity() {
         return (this instanceof ConfirmLockPassword.InternalActivity)
-                || (this instanceof ConfirmLockPattern.InternalActivity);
+                || (this instanceof ConfirmLockPattern.InternalActivity)
+                || (this instanceof JingSimpleConfirmLockPassword.InternalActivity)
+                || (this instanceof JingComplexConfirmLockPassword.InternalActivity)
+                || (this instanceof JingConfirmLockPattern.InternalActivity);
     }
 
     @Override
     protected void onCreate(Bundle savedState) {
-        final int credentialOwnerUserId;
-        try {
-            credentialOwnerUserId = Utils.getCredentialOwnerUserId(this,
-                    Utils.getUserIdFromBundle(this, getIntent().getExtras(), isInternalActivity()));
-        } catch (SecurityException e) {
-            Log.e(TAG, "Invalid user Id supplied", e);
-            finish();
-            return;
-        }
-        if (UserManager.get(this).isManagedProfile(credentialOwnerUserId)) {
-            setTheme(R.style.Theme_ConfirmDeviceCredentialsWork);
-            mConfirmCredentialTheme = ConfirmCredentialTheme.WORK;
-        } else if (getIntent().getBooleanExtra(
-                ConfirmDeviceCredentialBaseFragment.DARK_THEME, false)) {
-            setTheme(R.style.Theme_ConfirmDeviceCredentialsDark);
-            mConfirmCredentialTheme = ConfirmCredentialTheme.DARK;
-        } else {
-            setTheme(SetupWizardUtils.getTheme(getIntent()));
-            mConfirmCredentialTheme = ConfirmCredentialTheme.NORMAL;
-        }
+//        final int credentialOwnerUserId;
+//        try {
+//            credentialOwnerUserId = Utils.getCredentialOwnerUserId(this,
+//                    Utils.getUserIdFromBundle(this, getIntent().getExtras(), isInternalActivity()));
+//        } catch (SecurityException e) {
+//            Log.e(TAG, "Invalid user Id supplied", e);
+//            finish();
+//            return;
+//        }
+//        if (UserManager.get(this).isManagedProfile(credentialOwnerUserId)) {
+//            setTheme(R.style.Theme_ConfirmDeviceCredentialsWork);
+//            mConfirmCredentialTheme = ConfirmCredentialTheme.WORK;
+//        } else if (getIntent().getBooleanExtra(
+//                ConfirmDeviceCredentialBaseFragment.DARK_THEME, false)) {
+//            setTheme(R.style.Theme_ConfirmDeviceCredentialsDark);
+//            mConfirmCredentialTheme = ConfirmCredentialTheme.DARK;
+//        } else {
+//            setTheme(SetupWizardUtils.getTheme(getIntent()));
+//            mConfirmCredentialTheme = ConfirmCredentialTheme.NORMAL;
+//        }
+        //theme use Theme_SubSettings
         super.onCreate(savedState);
 
         mBiometricManager = getSystemService(BiometricManager.class);
@@ -182,6 +186,11 @@ public abstract class ConfirmDeviceCredentialBaseActivity extends SettingsActivi
                 ConfirmDeviceCredentialBaseFragment.USE_FADE_ANIMATION, false)) {
             overridePendingTransition(0, R.anim.confirm_credential_biometric_transition_exit);
         }
+    }
+
+    @Override
+    public boolean isLaunchableInTaskModePinned() {
+        return true;
     }
 
     public void prepareEnterAnimation() {

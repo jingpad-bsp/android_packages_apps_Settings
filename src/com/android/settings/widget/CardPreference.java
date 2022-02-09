@@ -34,6 +34,6 @@ public class CardPreference extends Preference {
     }
 
     public CardPreference(Context context, AttributeSet attrs) {
-        super(context, attrs, R.attr.cardPreferenceStyle);
+        super(context, attrs);
     }
 }

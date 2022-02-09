@@ -36,4 +36,11 @@
         settings:useAdminDisabledSummary="true"
         settings:controller="com.android.settings.connecteddevice.AddDevicePreferenceController"/>
 
+    <Preference
+        android:key="bt_received_files"
+        android:icon="@drawable/ic_folder_vd_theme_24"
+        android:title="@string/bluetooth_show_files_received_via_bluetooth"
+        settings:allowDividerAbove="true"
+        settings:controller="com.android.settings.bluetooth.BluetoothFilesPreferenceController"/>
+
 </PreferenceScreen>

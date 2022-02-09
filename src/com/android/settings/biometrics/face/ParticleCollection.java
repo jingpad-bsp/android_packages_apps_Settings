@@ -20,6 +20,7 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.Rect;
+import android.os.Handler;
 
 import com.android.settings.R;
 import com.android.settings.biometrics.BiometricEnrollSidecar;
@@ -137,7 +138,12 @@ public class ParticleCollection implements BiometricEnrollSidecar.Listener {
     @Override
     public void onEnrollmentProgressChange(int steps, int remaining) {
         if (remaining == 0) {
-            updateState(STATE_COMPLETE);
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    updateState(STATE_COMPLETE);
+                }
+            }, 1000);
         }
     }
 }

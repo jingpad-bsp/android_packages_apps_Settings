@@ -60,7 +60,7 @@ public class FirmwareVersionDetailPreferenceController extends BasePreferenceCon
 
     @Override
     public boolean useDynamicSliceSummary() {
-        return true;
+        return false;
     }
 
     @Override
@@ -70,7 +70,8 @@ public class FirmwareVersionDetailPreferenceController extends BasePreferenceCon
 
     @Override
     public CharSequence getSummary() {
-        return Build.VERSION.RELEASE;
+//        return Build.VERSION.RELEASE;
+        return null;
     }
 
     @Override

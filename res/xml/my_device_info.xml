@@ -40,7 +40,7 @@
     <!-- Account name -->
     <Preference
         android:key="branded_account"
-        android:order="2"
+        android:order="4"
         android:title="@string/my_device_info_account_preference_title"
         android:summary="@string/summary_placeholder"
         settings:controller="com.android.settings.deviceinfo.BrandedAccountPreferenceController"/>
@@ -48,7 +48,7 @@
     <!-- Phone number -->
     <Preference
         android:key="phone_number"
-        android:order="3"
+        android:order="5"
         android:title="@string/status_number"
         android:summary="@string/summary_placeholder"
         android:selectable="false"
@@ -105,6 +105,12 @@
         android:summary="@string/summary_placeholder"
         android:fragment="com.android.settings.deviceinfo.hardwareinfo.HardwareInfoFragment"
         settings:controller="com.android.settings.deviceinfo.HardwareInfoPreferenceController"/>
+
+    <!-- Device RAM display -->
+    <Preference
+        android:key="ram_display"
+        android:order="31"
+        android:title="@string/phone_ram"/>
 
     <!-- IMEI -->
     <Preference
@@ -191,5 +197,20 @@
         settings:allowDividerAbove="true"
         settings:enableCopying="true"
         settings:controller="com.android.settings.deviceinfo.BuildNumberPreferenceController"/>
+
+    <!-- Software revision -->
+    <Preference
+        android:key="software_revision"
+        android:order="54"
+        android:title="@string/software_revision"
+        android:summary="@string/summary_placeholder"/>
+
+    <!-- Hardware revision -->
+    <Preference
+        android:key="hardware_revision"
+        android:order="55"
+        android:title="@string/hardware_revision"
+        android:summary="@string/summary_placeholder"
+        settings:allowDividerAbove="true"/>
 
 </PreferenceScreen>

@@ -151,7 +151,7 @@ public class ChangeScreenLockPreferenceController extends AbstractPreferenceCont
                     break;
                 case DevicePolicyManager.PASSWORD_QUALITY_NUMERIC:
                 case DevicePolicyManager.PASSWORD_QUALITY_NUMERIC_COMPLEX:
-                    preference.setSummary(R.string.unlock_set_unlock_mode_pin);
+                    preference.setSummary(R.string.unlock_set_unlock_mode_password);
                     break;
                 case DevicePolicyManager.PASSWORD_QUALITY_ALPHABETIC:
                 case DevicePolicyManager.PASSWORD_QUALITY_ALPHANUMERIC:

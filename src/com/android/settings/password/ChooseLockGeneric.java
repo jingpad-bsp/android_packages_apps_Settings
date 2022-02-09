@@ -450,6 +450,9 @@ public class ChooseLockGeneric extends SettingsActivity {
             final Intent intent =
                     new Intent(context, BiometricEnrollActivity.InternalActivity.class);
             intent.putExtra(BiometricEnrollActivity.EXTRA_SKIP_INTRO, true);
+            // UNISOC: Fix for bug 1211381
+            intent.putExtra(ChooseLockSettingsHelper.EXTRA_KEY_FOR_FACE,
+                    mForFace);
             return intent;
         }
 
@@ -511,7 +514,7 @@ public class ChooseLockGeneric extends SettingsActivity {
             findPreference(KEY_SKIP_FINGERPRINT).setViewId(R.id.lock_none);
             findPreference(KEY_SKIP_FACE).setViewId(R.id.lock_none);
             findPreference(ScreenLockType.PIN.preferenceKey).setViewId(R.id.lock_pin);
-            findPreference(ScreenLockType.PASSWORD.preferenceKey).setViewId(R.id.lock_password);
+//            findPreference(ScreenLockType.PASSWORD.preferenceKey).setViewId(R.id.lock_password);
         }
 
         private String getFooterString() {
@@ -687,8 +690,9 @@ public class ChooseLockGeneric extends SettingsActivity {
         }
 
         protected Intent getLockPasswordIntent(int quality) {
-            ChooseLockPassword.IntentBuilder builder =
-                    new ChooseLockPassword.IntentBuilder(getContext())
+            JingLockPasswordUtils.IntentBuilder builder =
+                    new JingLockPasswordUtils.IntentBuilder(getContext(),
+                            quality == DevicePolicyManager.PASSWORD_QUALITY_ALPHABETIC)
                             .setPasswordQuality(quality)
                             .setRequestedMinComplexity(mRequestedMinComplexity)
                             .setForFingerprint(mForFingerprint)
@@ -704,8 +708,8 @@ public class ChooseLockGeneric extends SettingsActivity {
         }
 
         protected Intent getLockPatternIntent() {
-            ChooseLockPattern.IntentBuilder builder =
-                    new ChooseLockPattern.IntentBuilder(getContext())
+            JingChooseLockPattern.IntentBuilder builder =
+                    new JingChooseLockPattern.IntentBuilder(getContext())
                             .setForFingerprint(mForFingerprint)
                             .setForFace(mForFace)
                             .setUserId(mUserId);
@@ -783,7 +787,9 @@ public class ChooseLockGeneric extends SettingsActivity {
             if (quality == DevicePolicyManager.PASSWORD_QUALITY_UNSPECIFIED) {
                 mChooseLockSettingsHelper.utils().clearLock(mUserPassword, mUserId);
                 mChooseLockSettingsHelper.utils().setLockScreenDisabled(disabled, mUserId);
-                getActivity().setResult(Activity.RESULT_OK);
+                if (getActivity() != null) {
+                    getActivity().setResult(Activity.RESULT_OK);
+                }
                 removeAllBiometricsForUserAndFinish(mUserId);
             } else {
                 removeAllBiometricsForUserAndFinish(mUserId);
@@ -880,8 +886,16 @@ public class ChooseLockGeneric extends SettingsActivity {
             if (mFaceManager != null && mFaceManager.isHardwareDetected()) {
                 if (mFaceManager.hasEnrolledTemplates(userId)) {
                     mFaceManager.setActiveUser(userId);
-                    Face face = new Face(null, 0, 0);
-                    mFaceManager.remove(face, userId,
+                    // Fix for bug 1137786
+                    final List<Face> faces = mFaceManager.getEnrolledFaces(mUserId);
+                    if (faces.isEmpty()) {
+                        Log.e(TAG, "No faces");
+                        return;
+                    }
+                    if (faces.size() > 1) {
+                        Log.e(TAG, "Multiple enrollments: " + faces.size());
+                    }
+                    mFaceManager.remove(faces.get(0), userId,
                             new FaceManager.RemovalCallback() {
                         @Override
                         public void onRemovalError(Face face, int errMsgId, CharSequence err) {
@@ -953,28 +967,60 @@ public class ChooseLockGeneric extends SettingsActivity {
             } else {
                 hasFingerprints = false;
             }
+
+            final boolean hasFaceTemplates;
+            if (mFaceManager != null && mFaceManager.isHardwareDetected()) {
+                hasFaceTemplates = mFaceManager.hasEnrolledTemplates(mUserId);
+            } else {
+                hasFaceTemplates = false;
+            }
+
             boolean isProfile = UserManager.get(getActivity()).isManagedProfile(mUserId);
             switch (mLockPatternUtils.getKeyguardStoredPasswordQuality(mUserId)) {
                 case DevicePolicyManager.PASSWORD_QUALITY_SOMETHING:
                     if (hasFingerprints && isProfile) {
+                        if(hasFaceTemplates) {
+                            return R.string.unlock_disable_frp_and_face_warning_content_pattern_fingerprint_face_profile;
+                        }
                         return R.string
                                 .unlock_disable_frp_warning_content_pattern_fingerprint_profile;
                     } else if (hasFingerprints && !isProfile) {
+                        if(hasFaceTemplates) {
+                            return R.string.unlock_disable_frp_and_face_warning_content_pattern_fingerprint_face;
+                        }
                         return R.string.unlock_disable_frp_warning_content_pattern_fingerprint;
                     } else if (isProfile) {
+                        if(hasFaceTemplates) {
+                            return R.string.unlock_disable_face_warning_content_pattern_face_profile;
+                        }
                         return R.string.unlock_disable_frp_warning_content_pattern_profile;
                     } else {
+                        if(hasFaceTemplates) {
+                            return R.string.unlock_disable_face_warning_content_pattern_face;
+                        }
                         return R.string.unlock_disable_frp_warning_content_pattern;
                     }
                 case DevicePolicyManager.PASSWORD_QUALITY_NUMERIC:
                 case DevicePolicyManager.PASSWORD_QUALITY_NUMERIC_COMPLEX:
                     if (hasFingerprints && isProfile) {
+                        if(hasFaceTemplates) {
+                            return R.string.unlock_disable_frp_and_face_warning_content_pin_fingerprint_face_profile;
+                        }
                         return R.string.unlock_disable_frp_warning_content_pin_fingerprint_profile;
                     } else if (hasFingerprints && !isProfile) {
+                        if(hasFaceTemplates) {
+                            return R.string.unlock_disable_frp_and_face_warning_content_pin_fingerprint_face;
+                        }
                         return R.string.unlock_disable_frp_warning_content_pin_fingerprint;
                     } else if (isProfile) {
+                        if(hasFaceTemplates) {
+                            return R.string.unlock_disable_face_warning_content_pin_face_profile;
+                        }
                         return R.string.unlock_disable_frp_warning_content_pin_profile;
                     } else {
+                        if(hasFaceTemplates) {
+                            return R.string.unlock_disable_face_warning_content_pin_face;
+                        }
                         return R.string.unlock_disable_frp_warning_content_pin;
                     }
                 case DevicePolicyManager.PASSWORD_QUALITY_ALPHABETIC:
@@ -982,24 +1028,48 @@ public class ChooseLockGeneric extends SettingsActivity {
                 case DevicePolicyManager.PASSWORD_QUALITY_COMPLEX:
                 case DevicePolicyManager.PASSWORD_QUALITY_MANAGED:
                     if (hasFingerprints && isProfile) {
+                        if(hasFaceTemplates) {
+                            return R.string.unlock_disable_frp_and_face_warning_content_password_fingerprint_face_profile;
+                        }
                         return R.string
                                 .unlock_disable_frp_warning_content_password_fingerprint_profile;
                     } else if (hasFingerprints && !isProfile) {
+                        if(hasFaceTemplates) {
+                            return R.string.unlock_disable_frp_and_face_warning_content_password_fingerprint_face;
+                        }
                         return R.string.unlock_disable_frp_warning_content_password_fingerprint;
                     } else if (isProfile) {
+                        if(hasFaceTemplates) {
+                            return R.string.unlock_disable_face_warning_content_password_face_profile;
+                        }
                         return R.string.unlock_disable_frp_warning_content_password_profile;
                     } else {
+                        if(hasFaceTemplates) {
+                            return R.string.unlock_disable_face_warning_content_password_face;
+                        }
                         return R.string.unlock_disable_frp_warning_content_password;
                     }
                 default:
                     if (hasFingerprints && isProfile) {
+                        if(hasFaceTemplates) {
+                            return R.string.unlock_disable_frp_and_face_warning_content_unknown_fingerprint_face_profile;
+                        }
                         return R.string
                                 .unlock_disable_frp_warning_content_unknown_fingerprint_profile;
                     } else if (hasFingerprints && !isProfile) {
+                        if(hasFaceTemplates) {
+                            return R.string.unlock_disable_frp_and_face_warning_content_unknown_fingerprint_face;
+                        }
                         return R.string.unlock_disable_frp_warning_content_unknown_fingerprint;
                     } else if (isProfile) {
+                        if(hasFaceTemplates) {
+                            return R.string.unlock_disable_face_warning_content_unknown_face_profile;
+                        }
                         return R.string.unlock_disable_frp_warning_content_unknown_profile;
                     } else {
+                        if(hasFaceTemplates) {
+                            return R.string.unlock_disable_face_warning_content_unknown_face;
+                        }
                         return R.string.unlock_disable_frp_warning_content_unknown;
                     }
             }

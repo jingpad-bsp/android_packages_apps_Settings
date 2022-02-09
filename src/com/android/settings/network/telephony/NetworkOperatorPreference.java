@@ -101,6 +101,8 @@ public class NetworkOperatorPreference extends Preference {
                         ? R.drawable.ic_signal_strength_4g : R.drawable.signal_strength_lte;
             case CellInfo.TYPE_CDMA:
                 return R.drawable.signal_strength_1x;
+            case CellInfo.TYPE_NR:
+                return R.drawable.signal_strength_5g;
             default:
                 return MobileNetworkUtils.NO_CELL_DATA_TYPE_ICON;
         }
